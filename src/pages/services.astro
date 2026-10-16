@@ -1,0 +1,101 @@
+---
+/* ============================================================
+   /services: one section per service
+   ------------------------------------------------------------
+   Each section's id is the service id, which are the anchors the old
+   WordPress site linked to, misspelling included:
+     #fire-fighting  #alarm  #materials  #fire-amc
+     #fire-extenguisher-refilling  #core-cutting
+   Never change them (scripts/verify-site.mjs checks they land).
+
+   Each section: photo slot services.<id>, lead, body, what it covers,
+   and Call / Enquire buttons (the enquiry form pre-selects the service).
+   ============================================================ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import PageHero from "../components/PageHero.astro";
+import T from "../components/T.astro";
+import SlotPhoto from "../components/SlotPhoto.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { servicesPage as copy, type ServiceCopy } from "../data/services-page";
+import { services, site, telHref } from "../data/site";
+import { icon, icons } from "../data/icons";
+import { liveState } from "../lib/gallery-live";
+
+export const prerender = false;
+
+const page = "services";
+const live = await liveState();
+const items = copy.items as Record<string, ServiceCopy>;
+---
+
+<BaseLayout page={copy.meta.title} description={copy.meta.description}>
+  <Nav page={page} />
+  <main>
+    <PageHero page={page} {...copy.hero}>
+      <ul class="mt-8 flex flex-wrap gap-2">
+        {
+          services.map((s, i) => (
+            <li>
+              <a href={`#${s.id}`} class="inline-flex items-center min-h-10 px-4 rounded-pill border border-white/25 text-[0.9rem] font-medium text-white hover:border-white hover:bg-white/10">
+                <T k={`${page}.jump.${i}`} text={s.name} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </PageHero>
+
+    {
+      services.map((s, i) => {
+        const c = items[s.id];
+        const flip = i % 2 === 1;
+        return (
+          <section id={s.id} class:list={["py-16 sm:py-20", flip ? "bg-canvas" : "bg-surface"]}>
+            <div class="sf-container grid gap-10 lg:grid-cols-2 lg:gap-14 items-center">
+              <div class:list={["relative aspect-[3/2] overflow-hidden rounded-card bg-border shadow-md", flip && "lg:order-2"]}>
+                <SlotPhoto state={live} slot={`services.${s.id}`} sizes="(min-width: 1024px) 560px, 100vw" pictureClass="absolute inset-0" class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <div class="flex items-center gap-4">
+                  <span class="sf-icon"><Fragment set:html={icon(s.id)} /></span>
+                  <T as="h2" k={`${page}.items.${s.id}.name`} text={s.name} class="text-[clamp(1.5rem,3.4vw,2.1rem)] font-bold" />
+                </div>
+                <T as="p" k={`${page}.items.${s.id}.lead`} text={c.lead} class="mt-5 text-[1.12rem] font-medium text-navy" />
+                <T as="p" k={`${page}.items.${s.id}.body`} text={c.body} class="mt-3 text-ink" />
+                <T as="h3" k={`${page}.items.${s.id}.coversHead`} text={c.coversHead} class="mt-6 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-muted" />
+                <ul class="mt-3 grid gap-2.5">
+                  {c.covers.map((line, j) => (
+                    <li class="flex gap-3 text-[0.97rem]">
+                      <span class="mt-1 inline-flex w-5 h-5 shrink-0 items-center justify-center rounded-full bg-red-light text-red [&>svg]:w-3 [&>svg]:h-3" aria-hidden="true">
+                        <Fragment set:html={icons.check} />
+                      </span>
+                      <T k={`${page}.items.${s.id}.covers.${j}`} text={line} />
+                    </li>
+                  ))}
+                </ul>
+                <div class="mt-8 flex flex-wrap gap-3">
+                  <a href={telHref} class="sf-btn sf-btn-primary" aria-label={`${copy.actions.call}: ${site.phone.display}`}>
+                    <Fragment set:html={icons.phone} />
+                    <T k={`${page}.items.${s.id}.call`} text={copy.actions.call} />
+                  </a>
+                  <a href={`/contact-us?service=${encodeURIComponent(s.id)}#enquiry`} class="sf-btn sf-btn-ghost">
+                    <T k={`${page}.items.${s.id}.enquire`} text={copy.actions.enquire} />
+                  </a>
+                  <a href={`/gallery#${s.id}`} class="inline-flex items-center gap-1.5 min-h-11 px-2 font-semibold text-navy hover:text-red">
+                    <T k={`${page}.items.${s.id}.photos`} text={copy.actions.photos} />
+                    <span data-arrow aria-hidden="true">&rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })
+    }
+
+    <CtaBand page={page} />
+  </main>
+  <SiteFooter page={page} />
+</BaseLayout>

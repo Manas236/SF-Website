@@ -1,0 +1,31 @@
+---
+/* ============================================================
+   PageHero: the navy band that opens every inner page
+   ------------------------------------------------------------
+   Pill, H1, lead, and an optional row of links or buttons (the slot).
+   Clears the fixed 72px nav. Keys: <page>.hero.kicker / title / lead.
+   ============================================================ */
+import T from "./T.astro";
+
+interface Props {
+  page: string;
+  kicker: string;
+  title: string;
+  lead: string;
+}
+
+const { page, kicker, title, lead } = Astro.props;
+---
+
+<section class="sf-on-dark relative overflow-hidden bg-navy-dark text-white">
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full border-[28px] border-red/25"></div>
+    <div class="absolute -right-10 top-40 w-[260px] h-[260px] rounded-full border-[18px] border-white/5"></div>
+  </div>
+  <div class="sf-container relative pt-[120px] pb-14 sm:pt-[136px] sm:pb-16">
+    <T as="p" k={`${page}.hero.kicker`} text={kicker} class="sf-pill" />
+    <T as="h1" k={`${page}.hero.title`} text={title} class="mt-4 max-w-3xl text-white text-[clamp(2rem,5.5vw,3.25rem)] font-bold" />
+    <T as="p" k={`${page}.hero.lead`} text={lead} class="mt-5 max-w-2xl text-[1.1rem] sm:text-[1.15rem] leading-relaxed text-navy-light/85" />
+    <slot />
+  </div>
+</section>

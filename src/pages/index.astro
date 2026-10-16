@@ -1,20 +1,174 @@
 ---
+/* ============================================================
+   / : the homepage
+   ------------------------------------------------------------
+   hero (photo slot home.hero under a navy wash) -> services grid ->
+   why call us (photo slot home.intro) -> how we work -> areas and
+   projects -> closing call card -> footer.
+
+   The hero copy fades up on load from 35% (motion.css §4); it is the
+   page's LCP element, so it is never hidden. The hero photo is the one
+   eager, high-priority image on the page.
+   ============================================================ */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Nav from "../components/Nav.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import T from "../components/T.astro";
+import SlotPhoto from "../components/SlotPhoto.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { home as copy } from "../data/home";
+import { site, telHref } from "../data/site";
+import { icon, icons } from "../data/icons";
+import { liveState } from "../lib/gallery-live";
 
 export const prerender = false;
+
+const page = "home";
+const live = await liveState();
+const { hero, services, intro, steps, areas, projects } = copy;
 ---
 
-<BaseLayout description="Fire safety systems installed, serviced and supplied in Mumbai, Navi Mumbai and Thane.">
-  <Nav page="home" />
+<BaseLayout description={copy.meta.description}>
+  <Nav page={page} />
   <main>
-    <section class="pt-[120px] pb-20">
-      <div class="sf-container">
-        <T as="h1" k="home.hero.headline" text="Samruddhi Fire" class="text-4xl font-bold" />
+    <section class="sf-on-dark relative overflow-hidden bg-navy-dark text-white">
+      <SlotPhoto
+        state={live}
+        slot="home.hero"
+        sizes="100vw"
+        priority
+        pictureClass="absolute inset-0"
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-[linear-gradient(100deg,rgba(28,4,73,0.94)_0%,rgba(28,4,73,0.82)_45%,rgba(28,4,73,0.45)_100%)]" aria-hidden="true"></div>
+      <div class="sf-container relative pt-[128px] pb-20 sm:pt-[152px] sm:pb-28 lg:pb-32">
+        <div class="max-w-3xl">
+          <T as="p" k={`${page}.hero.kicker`} text={hero.kicker} class="sf-pill" />
+          <h1 class="mt-5 text-white text-[clamp(2.1rem,6vw,3.6rem)] font-bold leading-[1.12]" data-hero-in="1">
+            <T k={`${page}.hero.headline`} text={hero.headline} />
+          </h1>
+          <p class="mt-5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed text-navy-light/90 max-w-2xl" data-hero-in="2">
+            <T k={`${page}.hero.sub`} text={hero.sub} />
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3" data-hero-in="3">
+            <a href={telHref} class="sf-btn sf-btn-primary" aria-label={`${hero.call}: ${site.phone.display}`}>
+              <Fragment set:html={icons.phone} />
+              <T k={`${page}.hero.call`} text={hero.call} />
+            </a>
+            <a href={site.whatsapp.href} target="_blank" rel="noopener" class="sf-btn sf-btn-light">
+              <Fragment set:html={icons.whatsapp} />
+              <T k={`${page}.hero.whatsapp`} text={hero.whatsapp} />
+            </a>
+            <a href="/services" class="sf-btn sf-btn-ghost">
+              <T k={`${page}.hero.services`} text={hero.services} />
+            </a>
+          </div>
+        </div>
       </div>
     </section>
+
+    <section class="bg-canvas py-16 sm:py-24">
+      <div class="sf-container">
+        <div class="max-w-2xl">
+          <T as="p" k={`${page}.services.kicker`} text={services.kicker} class="sf-pill" />
+          <T as="h2" k={`${page}.services.heading`} text={services.heading} class="mt-3 text-[clamp(1.6rem,3.6vw,2.25rem)] font-bold" />
+          <T as="p" k={`${page}.services.sub`} text={services.sub} class="mt-3 text-muted text-[1.05rem]" />
+        </div>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
+          {
+            services.cards.map((s, i) => (
+              <li class="sf-card relative overflow-hidden flex flex-col p-7" data-card>
+                <span class="sf-icon"><Fragment set:html={icon(s.id)} /></span>
+                <T as="h3" k={`${page}.services.cards.${i}.title`} text={s.title} class="mt-5 text-[1.15rem] font-bold" />
+                <T as="p" k={`${page}.services.cards.${i}.text`} text={services.blurbs[s.id]} class="mt-2 text-[0.95rem] text-muted flex-1" />
+                <a href={`/services#${s.id}`} class="mt-5 inline-flex items-center gap-1.5 text-[0.93rem] font-semibold text-red hover:text-red-dark">
+                  <T k={`${page}.services.cards.${i}.more`} text={services.more} />
+                  <span class="sr-only" data-no-edit>: {s.title}</span>
+                  <span data-arrow aria-hidden="true">&rarr;</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="bg-surface py-16 sm:py-24">
+      <div class="sf-container grid gap-10 lg:grid-cols-2 lg:gap-14 items-center">
+        <div class="relative aspect-[3/2] overflow-hidden rounded-card bg-border shadow-md lg:order-2">
+          <SlotPhoto state={live} slot="home.intro" sizes="(min-width: 1024px) 560px, 100vw" pictureClass="absolute inset-0" class="w-full h-full object-cover" />
+        </div>
+        <div>
+          <T as="p" k={`${page}.intro.kicker`} text={intro.kicker} class="sf-pill" />
+          <T as="h2" k={`${page}.intro.heading`} text={intro.heading} class="mt-3 text-[clamp(1.6rem,3.6vw,2.25rem)] font-bold" />
+          <T as="p" k={`${page}.intro.body`} text={intro.body} class="mt-4 text-[1.05rem] text-ink" />
+          <ul class="grid sm:grid-cols-2 gap-5 mt-8">
+            {
+              intro.points.map((p, i) => (
+                <li class="flex gap-3">
+                  <span class="mt-0.5 inline-flex w-7 h-7 shrink-0 items-center justify-center rounded-full bg-red-light text-red [&>svg]:w-4 [&>svg]:h-4" aria-hidden="true">
+                    <Fragment set:html={icons.check} />
+                  </span>
+                  <div>
+                    <T as="h3" k={`${page}.intro.points.${i}.title`} text={p.title} class="text-[1rem] font-bold" />
+                    <T as="p" k={`${page}.intro.points.${i}.text`} text={p.text} class="mt-1 text-[0.93rem] text-muted" />
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-canvas py-16 sm:py-24">
+      <div class="sf-container">
+        <div class="max-w-2xl">
+          <T as="p" k={`${page}.steps.kicker`} text={steps.kicker} class="sf-pill" />
+          <T as="h2" k={`${page}.steps.heading`} text={steps.heading} class="mt-3 text-[clamp(1.6rem,3.6vw,2.25rem)] font-bold" />
+        </div>
+        <ol class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+          {
+            steps.items.map((s, i) => (
+              <li class="sf-card relative overflow-hidden p-6" data-card>
+                <span class="block w-10 h-1 rounded-full bg-red" aria-hidden="true"></span>
+                <T as="h3" k={`${page}.steps.items.${i}.title`} text={s.title} class="mt-5 text-[1.1rem] font-bold" />
+                <T as="p" k={`${page}.steps.items.${i}.text`} text={s.text} class="mt-2 text-[0.95rem] text-muted" />
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="bg-surface py-16 sm:py-20">
+      <div class="sf-container grid gap-5 md:grid-cols-2">
+        <div class="relative overflow-hidden rounded-card bg-navy text-white p-8 sm:p-10 sf-on-dark">
+          <span class="absolute -right-16 -bottom-16 w-56 h-56 rounded-full border-[22px] border-red/30" aria-hidden="true"></span>
+          <div class="relative">
+            <T as="p" k={`${page}.areas.kicker`} text={areas.kicker} class="sf-pill" />
+            <T as="h2" k={`${page}.areas.heading`} text={areas.heading} class="mt-3 text-white text-[clamp(1.4rem,3vw,1.9rem)] font-bold" />
+            <T as="p" k={`${page}.areas.text`} text={areas.text} class="mt-3 text-navy-light/85 max-w-md" />
+            <a href="/locations" class="mt-6 inline-flex items-center gap-1.5 font-semibold text-white hover:text-saffron">
+              <T k={`${page}.areas.link`} text={areas.link} />
+              <span data-arrow aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </div>
+        <div class="sf-card relative overflow-hidden p-8 sm:p-10" data-card>
+          <span class="sf-icon"><Fragment set:html={icons.folder} /></span>
+          <T as="p" k={`${page}.projects.kicker`} text={projects.kicker} class="sf-pill mt-5" />
+          <T as="h2" k={`${page}.projects.heading`} text={projects.heading} class="mt-3 text-[clamp(1.4rem,3vw,1.9rem)] font-bold" />
+          <T as="p" k={`${page}.projects.text`} text={projects.text} class="mt-3 text-muted" />
+          <a href="/projects" class="mt-6 inline-flex items-center gap-1.5 font-semibold text-red hover:text-red-dark">
+            <T k={`${page}.projects.link`} text={projects.link} />
+            <span data-arrow aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <CtaBand page={page} />
   </main>
-  <SiteFooter page="home" />
+  <SiteFooter page={page} />
 </BaseLayout>

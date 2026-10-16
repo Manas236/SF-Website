@@ -1,0 +1,132 @@
+---
+/* ============================================================
+   /about: story, mission and vision
+   ------------------------------------------------------------
+   hero -> our story (photo slot about.story) -> mission and vision ->
+   how we work -> founder and company details -> closing card.
+
+   The story, mission, vision and founder note are the client's to
+   write: placeholders in src/data/about.ts until they edit them in.
+   ============================================================ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import PageHero from "../components/PageHero.astro";
+import T from "../components/T.astro";
+import SlotPhoto from "../components/SlotPhoto.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { about as copy } from "../data/about";
+import { site } from "../data/site";
+import { icons } from "../data/icons";
+import { liveState } from "../lib/gallery-live";
+
+export const prerender = false;
+
+const page = "about";
+const live = await liveState();
+const { story, mission, vision, values, founder, details } = copy;
+const initials = founder.name
+  .split(" ")
+  .map((w) => w[0])
+  .join("");
+---
+
+<BaseLayout page={copy.meta.title} description={copy.meta.description}>
+  <Nav page={page} />
+  <main>
+    <PageHero page={page} {...copy.hero} />
+
+    <section class="bg-surface py-16 sm:py-24">
+      <div class="sf-container grid gap-10 lg:grid-cols-2 lg:gap-14 items-start">
+        <div>
+          <T as="p" k={`${page}.story.kicker`} text={story.kicker} class="sf-pill" />
+          <T as="h2" k={`${page}.story.heading`} text={story.heading} class="mt-3 text-[clamp(1.6rem,3.6vw,2.25rem)] font-bold" />
+          <T as="p" k={`${page}.story.intro`} text={story.intro} class="mt-4 text-[1.1rem] text-ink" />
+          <T as="p" k={`${page}.story.body`} text={story.body} class="mt-4 text-ink" />
+          <T as="p" k={`${page}.story.more`} text={story.more} class="mt-4 text-ink" />
+        </div>
+        <div class="relative aspect-[3/2] overflow-hidden rounded-card bg-border shadow-md">
+          <SlotPhoto state={live} slot="about.story" sizes="(min-width: 1024px) 560px, 100vw" pictureClass="absolute inset-0" class="w-full h-full object-cover" />
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-canvas py-16 sm:py-24">
+      <div class="sf-container grid gap-5 md:grid-cols-2">
+        {
+          [
+            { key: "mission", c: mission, icon: icons.shield },
+            { key: "vision", c: vision, icon: icons.calendar },
+          ].map(({ key, c, icon }) => (
+            <article class="sf-card relative overflow-hidden p-8 sm:p-10" data-card>
+              <span class="sf-icon"><Fragment set:html={icon} /></span>
+              <T as="p" k={`${page}.${key}.kicker`} text={c.kicker} class="sf-pill mt-5" />
+              <T as="h2" k={`${page}.${key}.heading`} text={c.heading} class="mt-3 text-[1.5rem] font-bold" />
+              <T as="p" k={`${page}.${key}.text`} text={c.text} class="mt-3 text-[1.05rem] text-ink" />
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="bg-surface py-16 sm:py-24">
+      <div class="sf-container">
+        <div class="max-w-2xl">
+          <T as="p" k={`${page}.values.kicker`} text={values.kicker} class="sf-pill" />
+          <T as="h2" k={`${page}.values.heading`} text={values.heading} class="mt-3 text-[clamp(1.6rem,3.6vw,2.25rem)] font-bold" />
+        </div>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+          {
+            values.items.map((v, i) => (
+              <li class="sf-card relative overflow-hidden p-6" data-card>
+                <span class="block w-10 h-1 rounded-full bg-red" aria-hidden="true"></span>
+                <T as="h3" k={`${page}.values.items.${i}.title`} text={v.title} class="mt-5 text-[1.1rem] font-bold" />
+                <T as="p" k={`${page}.values.items.${i}.text`} text={v.text} class="mt-2 text-[0.95rem] text-muted" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="bg-canvas py-16 sm:py-24">
+      <div class="sf-container grid gap-5 lg:grid-cols-[1fr_1.2fr]">
+        <article class="sf-card p-8 sm:p-10">
+          <T as="p" k={`${page}.founder.kicker`} text={founder.kicker} class="sf-pill" />
+          <div class="mt-6 flex items-center gap-4">
+            <span class="inline-flex w-16 h-16 shrink-0 items-center justify-center rounded-full bg-navy text-white text-xl font-bold" aria-hidden="true" data-no-edit>{initials}</span>
+            <div>
+              <p class="text-[1.25rem] font-bold text-navy" data-no-edit>{founder.name}</p>
+              <T as="p" k={`${page}.founder.role`} text={founder.role} class="text-muted text-[0.95rem]" />
+            </div>
+          </div>
+          <T as="p" k={`${page}.founder.note`} text={founder.note} class="mt-6 text-ink" />
+        </article>
+
+        <article class="sf-card p-8 sm:p-10">
+          <T as="p" k={`${page}.details.kicker`} text={details.kicker} class="sf-pill" />
+          <T as="h2" k={`${page}.details.heading`} text={details.heading} class="mt-3 text-[1.5rem] font-bold" />
+          <dl class="mt-6 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-8 gap-y-3 text-[0.97rem]">
+            <T as="dt" k={`${page}.details.nameLabel`} text={details.nameLabel} class="text-muted" />
+            <dd class="font-semibold text-ink" data-no-edit>{site.name}</dd>
+            <T as="dt" k={`${page}.details.founderLabel`} text={details.founderLabel} class="text-muted" />
+            <dd class="font-semibold text-ink" data-no-edit>{site.founder}</dd>
+            <T as="dt" k={`${page}.details.gstinLabel`} text={details.gstinLabel} class="text-muted" />
+            <dd class="font-semibold text-ink tracking-wide" data-no-edit>{site.gstin}</dd>
+            <T as="dt" k={`${page}.details.officeLabel`} text={details.officeLabel} class="text-muted" />
+            <dd class="text-ink" data-no-edit>
+              <address class="not-italic">{site.address.lines.map((l) => <span class="block">{l}</span>)}</address>
+            </dd>
+            <T as="dt" k={`${page}.details.hoursLabel`} text={details.hoursLabel} class="text-muted" />
+            <dd class="text-ink" data-no-edit>{site.hours.display}</dd>
+            <T as="dt" k={`${page}.details.areasLabel`} text={details.areasLabel} class="text-muted" />
+            <dd class="text-ink" data-no-edit>{site.areas.join(", ")}</dd>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <CtaBand page={page} />
+  </main>
+  <SiteFooter page={page} />
+</BaseLayout>

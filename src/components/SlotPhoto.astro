@@ -1,0 +1,26 @@
+---
+/* ============================================================
+   SlotPhoto: the photo in a page image slot
+   ------------------------------------------------------------
+   Whatever the studio's "Site images" panel has chosen for `slot`
+   (src/data/image-slots.ts), else the baseline photo. Its caption is
+   the alt text. Renders nothing if the slot has no photo at all, so a
+   page never shows a broken image.
+   ============================================================ */
+import Photo from "./Photo.astro";
+import { slotPhoto, type LiveState } from "../lib/gallery-live";
+
+interface Props {
+  state: LiveState;
+  slot: string;
+  sizes: string;
+  class?: string;
+  pictureClass?: string;
+  priority?: boolean;
+}
+
+const { state, slot, sizes, class: imgClass, pictureClass, priority = false } = Astro.props;
+const photo = slotPhoto(state, slot);
+---
+
+{photo && <Photo file={photo.file} alt={photo.caption} sizes={sizes} class={imgClass} pictureClass={pictureClass} priority={priority} />}

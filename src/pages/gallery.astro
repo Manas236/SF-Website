@@ -1,0 +1,77 @@
+---
+/* ============================================================
+   /gallery: every photo on the site, by service
+   ------------------------------------------------------------
+   The live gallery: src/data/gallery.ts with the studio manager's
+   changes replayed over it (src/lib/gallery-live.ts), so a photo the
+   client hides, moves, reorders, recaptions or uploads shows here on
+   the next load. Each group's id is the service id, so /gallery#alarm
+   jumps to the alarm photos. Captions are edited in the studio, not
+   in the page.
+   ============================================================ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import PageHero from "../components/PageHero.astro";
+import T from "../components/T.astro";
+import GalleryGrid from "../components/GalleryGrid.astro";
+import Lightbox from "../components/Lightbox.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { galleryPage as copy } from "../data/gallery-page";
+import { liveGroups, liveState } from "../lib/gallery-live";
+
+export const prerender = false;
+
+const page = "gallery";
+const groups = liveGroups(await liveState());
+---
+
+<BaseLayout page={copy.meta.title} description={copy.meta.description}>
+  <Nav page={page} />
+  <main>
+    <PageHero page={page} {...copy.hero}>
+      {
+        groups.length > 0 && (
+          <ul class="mt-8 flex flex-wrap gap-2">
+            {groups.map((g) => (
+              <li>
+                <a href={`#${g.id}`} class="inline-flex items-center min-h-10 px-4 rounded-pill border border-white/25 text-[0.9rem] font-medium text-white hover:border-white hover:bg-white/10">
+                  <span data-no-edit>{g.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </PageHero>
+
+    <section class="bg-surface py-16 sm:py-20">
+      <div class="sf-container flex flex-col gap-14">
+        {
+          groups.length === 0 ? (
+            <T as="p" k={`${page}.empty`} text={copy.empty} class="text-muted text-lg" />
+          ) : (
+            groups.map((g, i) => (
+              <div id={g.id} class:list={[i > 0 && "pt-14 border-t border-border"]}>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                  <h2 class="text-[clamp(1.4rem,3vw,1.9rem)] font-bold" data-no-edit>{g.label}</h2>
+                  <a href={`/services#${g.id}`} class="inline-flex items-center gap-1.5 font-semibold text-red hover:text-red-dark">
+                    <T k={`${page}.groups.${g.id}.link`} text={copy.serviceLink} />
+                    <span data-arrow aria-hidden="true">&rarr;</span>
+                  </a>
+                </div>
+                <div class="mt-6">
+                  <GalleryGrid label={g.label} photos={g.photos} group={g.id} />
+                </div>
+              </div>
+            ))
+          )
+        }
+      </div>
+    </section>
+
+    <CtaBand page={page} />
+    <Lightbox labels={copy.lightbox} keyPrefix={`${page}.lightbox`} />
+  </main>
+  <SiteFooter page={page} />
+</BaseLayout>

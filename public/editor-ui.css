@@ -281,6 +281,17 @@
   cursor: default;
 }
 
+/* ---- Shown only in edit mode ----
+   /projects renders its list headings and "Add to this list" cards
+   even while both lists are empty, so the editor can fill them; a
+   visitor sees only the "coming soon" panel. */
+.sf-edit-only {
+  display: none;
+}
+:root[data-nt-mode] .sf-edit-only {
+  display: block;
+}
+
 /* ---- "Manage photos" link ----
    On pages with photographs, edit mode adds a link to the studio gallery
    manager in the corner opposite the editor bar. Captions and page

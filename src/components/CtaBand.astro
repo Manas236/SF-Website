@@ -1,0 +1,52 @@
+---
+/* ============================================================
+   CtaBand: the closing "get in touch" card on every page
+   ------------------------------------------------------------
+   A white card on the canvas with the QMS's red top bar, so it never
+   meets the navy footer band-on-band. Call, WhatsApp, and an enquiry
+   link (left out on the contact page itself). Keys: <page>.cta.*.
+   ============================================================ */
+import T from "./T.astro";
+import { cta } from "../data/cta";
+import { icons } from "../data/icons";
+import { site, telHref } from "../data/site";
+
+interface Props {
+  page: string;
+  /** Hide the "Send an enquiry" link (on the contact page). */
+  noEnquiry?: boolean;
+}
+
+const { page, noEnquiry = false } = Astro.props;
+const k = (rest: string) => `${page}.cta.${rest}`;
+---
+
+<section class="bg-canvas py-16 sm:py-20">
+  <div class="sf-container">
+    <div class="sf-card relative overflow-hidden px-6 py-10 sm:px-12 sm:py-12 grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+      <span class="absolute inset-x-0 top-0 h-[3px] bg-red" aria-hidden="true"></span>
+      <div>
+        <T as="p" k={k("kicker")} text={cta.kicker} class="sf-pill sf-pill-red" />
+        <T as="h2" k={k("title")} text={cta.title} class="mt-3 text-[clamp(1.5rem,3.4vw,2.1rem)] font-bold" />
+        <T as="p" k={k("text")} text={cta.text} class="mt-3 text-muted max-w-xl" />
+      </div>
+      <div class="flex flex-wrap gap-3 lg:justify-end">
+        <a href={telHref} class="sf-btn sf-btn-primary" aria-label={`${cta.call}: ${site.phone.display}`}>
+          <Fragment set:html={icons.phone} />
+          <T k={k("call")} text={cta.call} />
+        </a>
+        <a href={site.whatsapp.href} target="_blank" rel="noopener" class="sf-btn sf-btn-navy">
+          <Fragment set:html={icons.whatsapp} />
+          <T k={k("whatsapp")} text={cta.whatsapp} />
+        </a>
+        {
+          !noEnquiry && (
+            <a href="/contact-us#enquiry" class="sf-btn sf-btn-ghost">
+              <T k={k("enquire")} text={cta.enquire} />
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
