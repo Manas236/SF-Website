@@ -1,0 +1,115 @@
+---
+/* ============================================================
+   /contact-us: call, WhatsApp, email, the enquiry form, the map
+   ------------------------------------------------------------
+   The address the old site used, kept. /contact redirects here with a
+   301 (astro.config.mjs). Edit keys are contact.* (the page is
+   /contact-us; src/lib/editable.ts lists it).
+
+   The map is a live Google Maps embed with no API key: a search for the
+   address. Lazy-loaded, in a fixed-ratio box, so it never shifts the
+   page.
+   ============================================================ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import PageHero from "../components/PageHero.astro";
+import T from "../components/T.astro";
+import ContactForm from "../components/ContactForm.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { contactPage as copy } from "../data/contact-page";
+import { directionsUrl, mailHref, mapEmbedUrl, site, telHref } from "../data/site";
+import { icons } from "../data/icons";
+
+export const prerender = false;
+
+/* The form's success and error states come from the query string. */
+Astro.response.headers.set("Cache-Control", "no-store");
+
+const page = "contact";
+const { reach, map } = copy;
+const row = "flex gap-4 items-start";
+---
+
+<BaseLayout page={copy.meta.title} description={copy.meta.description}>
+  <Nav page={page} />
+  <main>
+    <PageHero page={page} {...copy.hero} />
+
+    <section class="bg-canvas py-16 sm:py-20">
+      <div class="sf-container grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-start">
+        <div class="sf-card p-6 sm:p-9">
+          <T as="h2" k={`${page}.reach.heading`} text={reach.heading} class="text-[1.6rem] font-bold" />
+          <div class="mt-6 grid gap-3">
+            <a href={telHref} class="sf-btn sf-btn-primary w-full !justify-start !text-[1.05rem] !py-3.5 !px-4 sm:!px-5 !whitespace-normal flex-wrap gap-y-1">
+              <Fragment set:html={icons.phone} />
+              <T k={`${page}.reach.call`} text={reach.call} />
+              <span class="ml-auto font-medium" data-no-edit>{site.phone.display}</span>
+            </a>
+            <a href={site.whatsapp.href} target="_blank" rel="noopener" class="sf-btn sf-btn-navy w-full !justify-start !text-[1.05rem] !py-3.5 !px-4 sm:!px-5 !whitespace-normal flex-wrap gap-y-1">
+              <Fragment set:html={icons.whatsapp} />
+              <T k={`${page}.reach.whatsapp`} text={reach.whatsapp} />
+              <span class="ml-auto font-medium" data-no-edit>{site.whatsapp.display}</span>
+            </a>
+            <a href={mailHref} class="sf-btn sf-btn-ghost w-full !justify-start !text-[1.05rem] !py-3.5 !px-4 sm:!px-5 !whitespace-normal flex-wrap gap-y-1">
+              <Fragment set:html={icons.mail} />
+              <T k={`${page}.reach.email`} text={reach.email} class="max-[459px]:sr-only" />
+              <span class="ml-auto min-w-0 font-medium text-[0.97rem] [overflow-wrap:anywhere]" data-no-edit>{site.email}</span>
+            </a>
+          </div>
+
+          <dl class="mt-8 grid gap-5 text-[0.98rem]">
+            <div class={row}>
+              <span class="sf-icon !w-10 !h-10 [&>svg]:!w-5 [&>svg]:!h-5"><Fragment set:html={icons.pin} /></span>
+              <div>
+                <T as="dt" k={`${page}.reach.officeLabel`} text={reach.officeLabel} class="font-semibold text-navy" />
+                <dd class="mt-0.5 text-ink" data-no-edit>
+                  <address class="not-italic">{site.address.lines.map((l) => <span class="block">{l}</span>)}</address>
+                </dd>
+              </div>
+            </div>
+            <div class={row}>
+              <span class="sf-icon !w-10 !h-10 [&>svg]:!w-5 [&>svg]:!h-5"><Fragment set:html={icons.clock} /></span>
+              <div>
+                <T as="dt" k={`${page}.reach.hoursLabel`} text={reach.hoursLabel} class="font-semibold text-navy" />
+                <dd class="mt-0.5 text-ink" data-no-edit>{site.hours.display}</dd>
+              </div>
+            </div>
+            <div class={row}>
+              <span class="sf-icon !w-10 !h-10 [&>svg]:!w-5 [&>svg]:!h-5"><Fragment set:html={icons.building} /></span>
+              <div>
+                <T as="dt" k={`${page}.reach.areasLabel`} text={reach.areasLabel} class="font-semibold text-navy" />
+                <dd class="mt-0.5 text-ink">
+                  <span data-no-edit>{site.areas.join(", ")}</span>
+                  <a href="/locations" class="mt-1 flex items-center gap-1.5 font-semibold text-red hover:text-red-dark">
+                    <T k={`${page}.reach.areasLink`} text={reach.areasLink} />
+                    <span data-arrow aria-hidden="true">&rarr;</span>
+                  </a>
+                </dd>
+              </div>
+            </div>
+          </dl>
+        </div>
+
+        <ContactForm />
+      </div>
+    </section>
+
+    <section class="bg-surface py-16 sm:py-20">
+      <div class="sf-container">
+        <T as="p" k={`${page}.map.kicker`} text={map.kicker} class="sf-pill" />
+        <T as="h2" k={`${page}.map.heading`} text={map.heading} class="mt-3 text-[clamp(1.6rem,3.6vw,2.25rem)] font-bold" />
+        <div class="relative mt-8 aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-card border border-border bg-canvas shadow-sm">
+          <iframe src={mapEmbedUrl} title={map.title} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen class="absolute inset-0 w-full h-full border-0"></iframe>
+        </div>
+        <a href={directionsUrl} target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-1.5 font-semibold text-red hover:text-red-dark">
+          <T k={`${page}.map.directions`} text={map.directions} />
+          <span data-arrow aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <CtaBand page={page} noEnquiry />
+  </main>
+  <SiteFooter page={page} />
+</BaseLayout>

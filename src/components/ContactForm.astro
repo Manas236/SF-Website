@@ -1,0 +1,100 @@
+---
+/* ============================================================
+   ContactForm: the enquiry form
+   ------------------------------------------------------------
+   Name, phone, email (optional), service, message. Posts to
+   /api/contact. With JavaScript, src/scripts/contact-form.js sends it
+   as JSON and swaps the form for the thank-you panel; without, it is a
+   plain form post and the server redirects back here with ?sent=1 or
+   ?error=<field>, which this component shows.
+
+   `website` is a honeypot: off screen, out of the tab order, ignored
+   by people. `t` is when the page was rendered (a send within two
+   seconds is a script).
+
+   Labels are editable slots (contact.form.*). The dropdown's option
+   values are the service names the server checks against, so the
+   options themselves are not editable.
+   ============================================================ */
+import T from "./T.astro";
+import { contactPage, formErrors } from "../data/contact-page";
+import { OTHER_SERVICE, SERVICE_OPTIONS, serviceFromId } from "../lib/leads";
+import { services } from "../data/site";
+
+const f = contactPage.form;
+const k = (rest: string) => `contact.form.${rest}`;
+const params = Astro.url.searchParams;
+const sent = params.get("sent") === "1";
+const errorKey = params.get("error") ?? "";
+const errorText = (formErrors as Record<string, string>)[errorKey] ?? (errorKey ? formErrors.server : "");
+const preselect = serviceFromId(params.get("service"));
+const rendered = Date.now();
+
+const field =
+  "mt-1.5 w-full rounded-button border border-border bg-surface px-4 py-3 text-[1rem] text-ink placeholder:text-muted/70 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy-light aria-[invalid=true]:border-red";
+const label = "block text-[0.9rem] font-semibold text-navy";
+---
+
+<div id="enquiry" class="sf-card relative overflow-hidden p-6 sm:p-9">
+  <span class="absolute inset-x-0 top-0 h-[3px] bg-red" aria-hidden="true"></span>
+  <T as="h2" k={k("heading")} text={f.heading} class="text-[1.6rem] font-bold" />
+  <T as="p" k={k("intro")} text={f.intro} class="mt-2 text-muted" />
+
+  <div data-contact-done class="mt-8 rounded-card bg-navy-light/60 p-6" role="status" tabindex="-1" hidden={!sent}>
+    <T as="p" k={k("successTitle")} text={f.successTitle} class="text-[1.15rem] font-bold text-navy" />
+    <T as="p" k={k("successText")} text={f.successText} class="mt-2 text-ink" />
+  </div>
+
+  <form data-contact-form method="post" action="/api/contact" class="mt-7 grid gap-5" novalidate hidden={sent} data-sending={f.sending}>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="cf-name" class={label}><T k={k("name")} text={f.name} /></label>
+        <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" class={field} />
+      </div>
+      <div>
+        <label for="cf-phone" class={label}><T k={k("phone")} text={f.phone} /></label>
+        <input id="cf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="30" class={field} />
+      </div>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="cf-email" class={label}><T k={k("email")} text={f.email} /></label>
+        <input id="cf-email" name="email" type="email" autocomplete="email" maxlength="254" class={field} />
+      </div>
+      <div>
+        <label for="cf-service" class={label}><T k={k("service")} text={f.service} /></label>
+        <select id="cf-service" name="service" required class={field}>
+          <option value="" selected={!preselect}>{f.servicePlaceholder}</option>
+          {services.map((s) => <option value={s.name} selected={preselect === s.name}>{s.name}</option>)}
+          <option value={OTHER_SERVICE}>{f.other}</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label for="cf-message" class={label}><T k={k("message")} text={f.message} /></label>
+      <textarea id="cf-message" name="message" rows="5" required maxlength="2000" aria-describedby="cf-message-hint" class={field}></textarea>
+      <T as="p" id="cf-message-hint" k={k("messageHint")} text={f.messageHint} class="mt-1.5 text-[0.85rem] text-muted" />
+    </div>
+
+    <div class="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+      <label for="cf-website">Leave this empty</label>
+      <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+    <input type="hidden" name="t" value={rendered} />
+
+    <p data-contact-error class="text-[0.95rem] font-medium text-red" role="alert" hidden={!errorText}>{errorText}</p>
+
+    <div class="flex flex-wrap items-center gap-4">
+      <button type="submit" class="sf-btn sf-btn-primary">
+        <T k={k("submit")} text={f.submit} />
+      </button>
+    </div>
+    <noscript>
+      <p class="text-[0.9rem] text-muted">{f.noscript}</p>
+    </noscript>
+  </form>
+</div>
+
+<script>
+  import "../scripts/contact-form.js";
+</script>

@@ -77,9 +77,12 @@ export const services: readonly Service[] = [
 /** The one-line address, for maps and schema. */
 export const addressOneLine = `${site.address.streetAddress}, ${site.address.locality} ${site.address.postalCode}`;
 
-/** Google Maps embed with no API key: a search for the address. */
+/** Google Maps embed with no API key: a search for the ADDRESS only.
+    Searching the business name makes Google draw its place card, which
+    shows a star rating and review count, and the site carries no
+    ratings or reviews (CLAUDE.md). The address alone drops a plain pin. */
 export const mapEmbedUrl =
-  "https://maps.google.com/maps?q=" + encodeURIComponent(`${site.name}, ${addressOneLine}`) + "&z=16&output=embed";
+  "https://maps.google.com/maps?q=" + encodeURIComponent(addressOneLine) + "&z=16&output=embed";
 
 export const directionsUrl =
   "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(addressOneLine);

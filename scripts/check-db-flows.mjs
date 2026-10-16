@@ -80,7 +80,7 @@ function record(step, outcome, detail = "") {
   console.log(`${outcome.padEnd(4)}  ${step}${detail ? `  (${detail})` : ""}`);
 }
 
-const left = { edit: false, hide: null, block: null };
+const left = { edit: false, hide: null, slot: null, block: null };
 
 /* ---------- 1. text edit ---------- */
 async function textFlow() {
@@ -131,6 +131,26 @@ async function galleryFlow() {
   else if (!offPage) record("2 gallery", "FAIL", "hidden in the studio, but /gallery still shows it");
   else if (!back) record("2 gallery", "FAIL", `undo: ${said(undo)}`);
   else record("2 gallery", "PASS", `${photo.file} hidden, gone from /gallery, then restored`);
+}
+
+/* ---------- 2b. page image slot ---------- */
+async function slotFlow() {
+  const snap = await call("GET", "/api/gallery");
+  if (snap.status !== 200) return record("2b page image", "FAIL", said(snap));
+  const slot = snap.json.slots.find((s) => s.key === "home.hero");
+  const other = snap.json.groups.flatMap((g) => g.photos).find((p) => !p.hidden && p.file !== slot.file);
+  const set = await call("POST", "/api/gallery", { action: "slot", slot: "home.hero", file: other.file });
+  if (set.status !== 200) return record("2b page image", "FAIL", `slot: ${said(set)}`);
+  const ev = set.json.history.find((h) => h.action === "slot" && !h.undone);
+  left.slot = ev?.id ?? null;
+  const home = await call("GET", "/");
+  const shown = home.text.includes(other.file.replace(/\.jpg$/, "") + "-960");
+  const undo = left.slot ? await call("POST", "/api/gallery", { action: "undo", ref: left.slot }) : { status: 0 };
+  if (undo.status === 200) left.slot = null;
+  const back = (await call("GET", "/")).text.includes(slot.file.replace(/\.jpg$/, "") + "-960");
+  if (!shown) record("2b page image", "FAIL", "slot saved, but the homepage banner did not change");
+  else if (!back) record("2b page image", "FAIL", `undo: ${said(undo)}`);
+  else record("2b page image", "PASS", `home banner swapped to ${other.file} and back`);
 }
 
 /* ---------- 3. project list ---------- */
@@ -196,6 +216,7 @@ try {
     signedIn = true;
     await textFlow();
     await galleryFlow();
+    await slotFlow();
     await projectFlow();
     await leadFlow();
   }
@@ -205,6 +226,7 @@ try {
   try {
     if (left.edit) await call("POST", "/api/content/revert", { path: "/", key: "home.hero.headline" });
     if (left.hide) await call("POST", "/api/gallery", { action: "undo", ref: left.hide });
+    if (left.slot) await call("POST", "/api/gallery", { action: "undo", ref: left.slot });
     if (left.block) await call("POST", "/api/project-blocks", { action: "remove", slug: "ongoing", id: left.block });
     if (signedIn) await call("DELETE", "/api/edit-session");
   } catch {
