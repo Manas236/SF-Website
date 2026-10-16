@@ -29,6 +29,11 @@ export default defineConfig({
      project lists are read from MySQL on every request. */
   output: "server",
 
+  /* One form of every address: /about, never /about/. The old site's
+     /about/, /services/ and /contact-us/ are redirected (301) to it, and
+     the sitemap and canonicals agree. */
+  trailingSlash: "never",
+
   /* Off on purpose. The compressor removes whitespace between tags, and
      some lines put an editable span beside generated text (the footer's
      year), where that whitespace is a word gap. The in-page editor trims

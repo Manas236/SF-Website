@@ -20,8 +20,12 @@
     "check:cls": "node scripts/check-layout-shift.mjs",
     "check:sweep": "node scripts/sweep-source.mjs",
     "check:site": "node scripts/verify-site.mjs",
+    "check:gallery": "node scripts/probe-gallery.mjs",
+    "check:contact": "node scripts/probe-contact.mjs",
+    "db:setup": "node scripts/db-setup.mjs",
     "images:build": "node scripts/build-stock-images.mjs",
     "hashes:build": "node scripts/build-gallery-hashes.mjs",
+    "brand:build": "node scripts/build-brand-assets.mjs",
     "share-card:build": "node scripts/build-share-card.mjs"
   },
   "dependencies": {
