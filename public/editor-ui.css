@@ -1,0 +1,322 @@
+/* ============================================================
+   In-page editor furniture
+   ------------------------------------------------------------
+   The toolbar, toast, version menu, edit-mode outlines, the project
+   list controls and the "Manage photos" link. It lives in public/ and
+   is linked from BaseLayout because it is tooling, not the design: it
+   draws from the site tokens (each with a literal fallback, so it still
+   draws if loaded before the site stylesheet) but is not part of them.
+
+   The `nt-` prefix matches src/scripts/inline-edit.js.
+
+   Everything that marks editable text is scoped to :root[data-nt-mode],
+   the attribute the "Edit text" button sets. With the mode off, an
+   editable element looks exactly like any other text.
+   ============================================================ */
+
+:root[data-nt-mode] [data-nt-editable] {
+  outline: 1px dashed rgba(242, 148, 74, 0.6);
+  outline-offset: 3px;
+  cursor: text;
+}
+
+/* Desktop only: :hover sticks after a tap on touch screens. */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-nt-mode] [data-nt-editable]:hover {
+    outline-color: rgba(242, 148, 74, 1);
+  }
+}
+
+/* The long press is the editor's while the mode is on. */
+:root[data-nt-mode] [data-nt-editable] {
+  -webkit-touch-callout: none;
+}
+
+[data-nt-editing] {
+  outline: 2px solid var(--sf-orange, #f2944a);
+  outline-offset: 3px;
+  cursor: text;
+  background-color: rgba(242, 148, 74, 0.14);
+}
+
+/* ---- Toolbar ---- */
+.nt-bar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: row-reverse; /* the mode button stays nearest the corner */
+  align-items: center;
+  gap: 8px;
+}
+
+/* Undo is only meaningful while editing. */
+.nt-bar .nt-pill:not(.nt-pill-mode) {
+  display: none;
+}
+:root[data-nt-mode] .nt-bar .nt-pill {
+  display: block;
+}
+
+.nt-pill {
+  font-family: var(--sf-font, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-color: rgba(27, 19, 17, 0.86);
+  color: var(--sf-on-dark, #f6efec);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  opacity: 0.6;
+  transition: opacity 0.25s ease, background-color 0.25s ease;
+  cursor: pointer;
+}
+.nt-pill:hover,
+.nt-pill:focus-visible {
+  opacity: 1;
+  background-color: var(--sf-ember, #1b1311);
+}
+
+:root[data-nt-mode] .nt-pill-mode {
+  opacity: 1;
+  background-color: var(--sf-orange, #f2944a);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--sf-ember, #1b1311);
+}
+
+/* ---- Toast ---- */
+.nt-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 64px;
+  z-index: 9999;
+  max-width: min(24rem, calc(100vw - 32px));
+  font-family: var(--sf-font, system-ui, sans-serif);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid rgba(27, 19, 17, 0.16);
+  background-color: var(--sf-white, #fff);
+  color: var(--sf-ink, #1b1311);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.nt-toast.is-up {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Per-element version menu ---- */
+.nt-menu {
+  position: absolute;
+  z-index: 9999;
+  width: min(20rem, calc(100vw - 24px));
+  padding: 0.35rem;
+  font-family: var(--sf-font, system-ui, sans-serif);
+  border-radius: 10px;
+  border: 1px solid rgba(27, 19, 17, 0.16);
+  background-color: var(--sf-white, #fff);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+}
+.nt-menu-head {
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--sf-muted, #8e817c);
+  padding: 0.4rem 0.5rem 0.3rem;
+}
+.nt-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--sf-ink, #1b1311);
+  border-radius: 6px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.nt-menu-item:hover:not(:disabled) {
+  background-color: rgba(27, 19, 17, 0.06);
+}
+.nt-menu-item:disabled {
+  cursor: default;
+  color: var(--sf-muted, #8e817c);
+}
+.nt-menu-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nt-menu-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--sf-muted, #8e817c);
+}
+
+/* ---- Project lists on /projects (src/scripts/project-blocks-editor.js) ----
+   The add card and the move / remove buttons exist for a signed-in
+   editor only, and show only while the mode is on, like Undo. */
+.nt-blocks-add,
+.nt-blocks-tools {
+  display: none;
+}
+:root[data-nt-mode] .nt-blocks-add {
+  display: block;
+}
+:root[data-nt-mode] .nt-blocks-tools {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+:root[data-nt-mode] [data-block] {
+  outline: 1px dashed var(--sf-orange, #f2944a);
+  outline-offset: 6px;
+}
+
+.nt-blocks-add {
+  margin-top: 24px;
+  border: 2px dashed var(--sf-orange, #f2944a);
+  border-radius: 14px;
+  padding: 24px;
+  font-family: var(--sf-font, system-ui, sans-serif);
+  color: var(--sf-ink, #1b1311);
+  background: var(--sf-white, #fff);
+  text-align: left;
+}
+.nt-blocks-add form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nt-blocks-head {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.nt-blocks-add label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.nt-blocks-add textarea {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 8px 10px;
+  border: 1px solid rgba(27, 19, 17, 0.3);
+  border-radius: 8px;
+  background-color: #fff;
+  color: var(--sf-ink, #1b1311);
+  width: 100%;
+  resize: vertical;
+}
+.nt-blocks-kind {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.nt-blocks-add .nt-blocks-kind label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.nt-blocks-note {
+  font-size: 12px;
+  color: var(--sf-muted, #8e817c);
+}
+.nt-blocks-error {
+  font-size: 13px;
+  color: #a50d14;
+}
+.nt-blocks-submit,
+.nt-blocks-tools button {
+  font-family: var(--sf-font, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.nt-blocks-submit {
+  align-self: flex-start;
+  background-color: var(--sf-red, #d5121a);
+  color: #fff;
+  border: 0;
+}
+.nt-blocks-tools button {
+  border: 1px solid var(--sf-orange, #f2944a);
+  color: var(--sf-ink, #1b1311);
+  background: #fff;
+}
+.nt-blocks-tools button:last-child {
+  border-color: #a50d14;
+  color: #a50d14;
+}
+.nt-blocks-submit:disabled,
+.nt-blocks-tools button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---- "Manage photos" link ----
+   On pages with photographs, edit mode adds a link to the studio gallery
+   manager in the corner opposite the editor bar. Captions and page
+   images are managed there, not in the page. */
+.nt-gallery-manage {
+  display: none;
+}
+:root[data-nt-mode] .nt-gallery-manage {
+  display: block;
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9998;
+  font-family: var(--sf-font, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: var(--sf-orange, #f2944a);
+  color: var(--sf-ember, #1b1311);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  text-decoration: none;
+}
+
+@media print {
+  .nt-bar,
+  .nt-pill,
+  .nt-toast,
+  .nt-menu,
+  .nt-blocks-tools,
+  .nt-blocks-add,
+  .nt-gallery-manage {
+    display: none !important;
+  }
+}

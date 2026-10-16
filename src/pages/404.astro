@@ -1,0 +1,46 @@
+---
+/* ============================================================
+   /404: the page every unmatched address lands on
+   ------------------------------------------------------------
+   Astro renders this, with status 404, for any request its router
+   cannot match, and for the bodyless 404 that /studio/[key] answers a
+   wrong slug with, which keeps that answer identical to any other
+   missing page. Server-rendered like every page (a prerendered /404 is
+   not in the server manifest). A direct visit to /404 answers 404 as
+   well, so the address is never a 200 a search engine might keep.
+
+   Keys are `not-found.*`. It is NOT in src/lib/editable.ts KNOWN_PATHS:
+   its address is any address, so an edit made here could not be
+   filed under one page. Excluded from the sitemap.
+   ============================================================ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { notFound as copy } from "../data/not-found";
+import { site, telHref } from "../data/site";
+
+export const prerender = false;
+
+Astro.response.status = 404;
+
+const page = "not-found";
+---
+
+<BaseLayout page={copy.meta.title} description={copy.meta.description} noindex>
+  <Nav page={page} />
+  <main>
+    <section class="sf-on-dark bg-ember text-on-dark min-h-[80vh] flex items-center">
+      <div class="sf-container pt-[120px] pb-20">
+        <p class="sf-kicker" data-no-edit>{copy.kicker}</p>
+        <h1 class="mt-4 text-[clamp(2rem,6vw,3.5rem)] font-bold leading-tight max-w-3xl" data-no-edit>{copy.title}</h1>
+        <p class="mt-5 text-lg text-on-dark-2 max-w-2xl" data-no-edit>{copy.sub}</p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href="/" class="sf-btn sf-btn-primary"><span data-no-edit>{copy.home}</span></a>
+          <a href="/services" class="sf-btn sf-btn-outline"><span data-no-edit>{copy.services}</span></a>
+          <a href={telHref} class="sf-btn sf-btn-outline"><span data-no-edit>{copy.call} {site.phone.display}</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter page={page} />
+</BaseLayout>

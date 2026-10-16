@@ -1,0 +1,324 @@
+/* ============================================================
+   Motion: menus, scroll reveal, hover, the homepage hero
+   ------------------------------------------------------------
+   Light motion only. Nothing in this file may change where anything
+   sits, how big it is, or what colour it rests at. Every rule animates
+   opacity or transform from a starting point back to the element's own
+   resting style; the exceptions are easing a link's EXISTING hover
+   colour and the nav menu panel's unroll, a clip-path that ends on
+   clipping nothing. When an animation has finished, the page is exactly
+   the page without it.
+
+   TIMING lives in one place, §0 below: every duration, stagger, travel
+   distance and curve, and the point at which the scroll reveal fires.
+   Rules further down only ever say var(--sf-motion-…), and reveal.js
+   reads its trigger from §0 and holds no numbers of its own. To make
+   all of it faster or slower, change --sf-motion-pace and nothing else.
+
+   FOUR GATES, on every rule below §0:
+
+     · `sf-motion` on <html>. The inline script at the top of
+       BaseLayout's head adds it before the body is parsed. No script,
+       no class, no motion. It is left off on /studio/* and when the
+       in-page editor is about to restore edit mode.
+     · `:not([data-nt-mode])`. While the editor is on, nothing editable
+       may be invisible, moving or offset. Switching edit mode on stops
+       motion where it stands and shows everything.
+     · `prefers-reduced-motion: no-preference` on everything that moves.
+       With reduced motion on, content simply shows.
+     · `screen`, so a printed page never meets a hidden block.
+
+   Hover adds `(hover: hover)`, so nothing happens on touch screens.
+
+   Each @keyframes has a `from` and no `to` (sf-unroll alone has a `to`,
+   §1), so it always ends on the element's own resting style. `backwards`
+   holds the starting frame only while an item waits out its delay.
+   ============================================================ */
+
+/* ---------- 0. Timing ----------
+   Retune here and nowhere else. Plain values; on their own they do
+   nothing, so this block needs no gates. */
+:root {
+  /* PACE scales every duration and stagger at once: 1 as tuned, 0.8 a
+     fifth quicker, 1.25 a quarter slower. */
+  --sf-motion-pace: 1;
+
+  /* Curves. Movement decelerates long and soft into place; fades take a
+     gentler ease-out so they read across their whole length. */
+  --sf-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --sf-motion-ease-soft: cubic-bezier(0.5, 1, 0.89, 1);
+
+  /* §1 Nav menu (Services). The panel fades in and unrolls down from the
+     bar while its items drop into place one after another. Closing is
+     always instant. */
+  --sf-motion-menu-panel: calc(250ms * var(--sf-motion-pace));
+  --sf-motion-menu-item: calc(450ms * var(--sf-motion-pace));
+  --sf-motion-menu-step: calc(90ms * var(--sf-motion-pace));
+  --sf-motion-menu-travel: 10px;
+  /* The unroll's bottom edge reaches the foot of the panel this long
+     after the last item starts, so each item drops into space just
+     opened. */
+  --sf-motion-menu-unroll-lead: calc(250ms * var(--sf-motion-pace));
+  --sf-motion-ease-unroll: cubic-bezier(0.33, 0.33, 0.5, 1);
+  /* The phone drawer: the same panel and items, a closer step; however
+     long the list, its last link starts by this time. */
+  --sf-motion-drawer-step: calc(50ms * var(--sf-motion-pace));
+  --sf-motion-drawer-last: calc(600ms * var(--sf-motion-pace));
+
+  /* §2 Scroll reveal. Blocks arriving together are `step` apart; the
+     stagger stops growing after `steps` of them. */
+  --sf-motion-reveal: calc(800ms * var(--sf-motion-pace));
+  --sf-motion-reveal-travel: 24px;
+  --sf-motion-reveal-step: calc(110ms * var(--sf-motion-pace));
+  --sf-motion-reveal-steps: 6;
+  /* When it fires (reveal.js reads these two): once this share of a
+     block is in view above a line this far up from the window's bottom. */
+  --sf-motion-reveal-seen: 0.15;
+  --sf-motion-reveal-line: 10%;
+
+  /* §3 Hover, pointer devices only. */
+  --sf-motion-zoom: calc(600ms * var(--sf-motion-pace));
+  --sf-motion-zoom-scale: 1.04;
+  --sf-motion-rule: calc(350ms * var(--sf-motion-pace));
+  --sf-motion-arrow: calc(300ms * var(--sf-motion-pace));
+  --sf-motion-arrow-travel: 3px;
+  --sf-motion-link: calc(300ms * var(--sf-motion-pace));
+
+  /* §4 Homepage hero: headline, sub-paragraph, buttons. The starting
+     opacity is deliberately not a setting: see §4. */
+  --sf-motion-hero: calc(1000ms * var(--sf-motion-pace));
+  --sf-motion-hero-travel: 20px;
+  --sf-motion-hero-step: calc(160ms * var(--sf-motion-pace));
+}
+
+/* ---------- 1. Nav menu ----------
+   The drop-down is display:none until hover, keyboard focus or a tap
+   opens it (Nav.astro, group-hover and group-focus-within). Going from
+   none to block starts these animations each time it opens; going back
+   ends them at once, so closing is instant. Opacity and transform never
+   stop a link taking a click or focus. The unroll's clip does, for the
+   part not yet opened, but its edge runs ahead of the items. */
+@keyframes sf-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sf-drop {
+  from {
+    transform: translateY(calc(-1 * var(--sf-motion-menu-travel)));
+  }
+}
+
+/* The one keyframe with a `to`: a clip-path cannot blend into `none`,
+   only into another inset(), so it ends on inset(0), which clips
+   nothing. It does not fill forwards, so the panel then rests on its
+   own clip-path, none. A clip never moves layout. */
+@keyframes sf-unroll {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* How many items the menu holds, for the unroll's length, counted with
+     :has() up to eight. Without :has() the panel simply unrolls faster. */
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu {
+    --sf-menu-n: 1;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(2)) {
+    --sf-menu-n: 2;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(3)) {
+    --sf-menu-n: 3;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(4)) {
+    --sf-menu-n: 4;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(5)) {
+    --sf-menu-n: 5;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(6)) {
+    --sf-menu-n: 6;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(7)) {
+    --sf-menu-n: 7;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-nav-menu:has(> li:nth-child(8)) {
+    --sf-menu-n: 8;
+  }
+
+  /* Declared only while the menu is open, so a closed menu carries no
+     animation at all. */
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu {
+    animation:
+      sf-fade var(--sf-motion-menu-panel) var(--sf-motion-ease-soft) backwards,
+      sf-unroll calc((var(--sf-menu-n) - 1) * var(--sf-motion-menu-step) + var(--sf-motion-menu-unroll-lead))
+        var(--sf-motion-ease-unroll) backwards;
+  }
+
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li {
+    animation:
+      sf-fade var(--sf-motion-menu-item) var(--sf-motion-ease-soft) backwards,
+      sf-drop var(--sf-motion-menu-item) var(--sf-motion-ease) backwards;
+    animation-delay: calc(var(--sf-i, 0) * var(--sf-motion-menu-step));
+  }
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li:nth-child(2) {
+    --sf-i: 1;
+  }
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li:nth-child(3) {
+    --sf-i: 2;
+  }
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li:nth-child(4) {
+    --sf-i: 3;
+  }
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li:nth-child(5) {
+    --sf-i: 4;
+  }
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li:nth-child(6) {
+    --sf-i: 5;
+  }
+  :root.sf-motion:not([data-nt-mode]) .group:is(:hover, :focus-within) .sf-nav-menu > li:nth-child(n + 7) {
+    --sf-i: 6;
+  }
+
+  /* The phone drawer, while open: the same entrance, every link top to
+     bottom, the service sub-links in their place in the run. Nav.astro's
+     script numbers the links (--sf-i) the first time the drawer opens. */
+  :root.sf-motion:not([data-nt-mode]) #nav-drawer:not(.hidden) {
+    animation: sf-fade var(--sf-motion-menu-panel) var(--sf-motion-ease-soft) backwards;
+  }
+
+  :root.sf-motion:not([data-nt-mode]) #nav-drawer:not(.hidden) a {
+    animation:
+      sf-fade var(--sf-motion-menu-item) var(--sf-motion-ease-soft) backwards,
+      sf-drop var(--sf-motion-menu-item) var(--sf-motion-ease) backwards;
+    animation-delay: min(calc(var(--sf-i, 0) * var(--sf-motion-drawer-step)), var(--sf-motion-drawer-last));
+  }
+}
+
+/* ---------- 2. Scroll reveal ----------
+   src/scripts/reveal.js marks the blocks, cards and tiles that start
+   below the fold with data-reveal, then flips each to "in" as it comes
+   into view, once. When the transition has run it removes the
+   attribute. The script numbers blocks arriving together
+   (--sf-reveal-i); the stagger is worked out here. A block that takes
+   keyboard focus while still hidden shows at once. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  :root.sf-motion:not([data-nt-mode]) [data-reveal] {
+    opacity: 0;
+    transform: translateY(var(--sf-motion-reveal-travel));
+  }
+
+  :root.sf-motion:not([data-nt-mode]) [data-reveal="in"],
+  :root.sf-motion:not([data-nt-mode]) [data-reveal]:focus-within {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--sf-motion-reveal) var(--sf-motion-ease-soft),
+      transform var(--sf-motion-reveal) var(--sf-motion-ease);
+    transition-delay: calc(min(var(--sf-reveal-i, 0), var(--sf-motion-reveal-steps)) * var(--sf-motion-reveal-step));
+  }
+}
+
+/* ---------- 3. Hover, pointer devices only ----------
+   Links that already change colour on hover (their class carries a
+   `hover:` utility) ease into it instead of switching. A colour fading
+   is not movement, so this one holds under reduced motion too. */
+@media screen and (hover: hover) {
+  :root.sf-motion:not([data-nt-mode]) a[class*="hover:"] {
+    transition:
+      color var(--sf-motion-link) var(--sf-motion-ease-soft),
+      background-color var(--sf-motion-link) var(--sf-motion-ease-soft),
+      border-color var(--sf-motion-link) var(--sf-motion-ease-soft);
+  }
+}
+
+/* A card's accent rule, drawn from the left. */
+@keyframes sf-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media screen and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  /* Photographs zoom a little inside their own frame. Every photo tile is
+     an overflow-hidden box with the <img> (or its <picture>) as a direct
+     child, so the zoom is clipped and nothing around it moves. */
+  :root.sf-motion:not([data-nt-mode]) .overflow-hidden > :is(img, picture) {
+    transition: transform var(--sf-motion-zoom) var(--sf-motion-ease-soft);
+  }
+  :root.sf-motion:not([data-nt-mode]) .overflow-hidden:hover > :is(img, picture) {
+    transform: scale(var(--sf-motion-zoom-scale));
+  }
+
+  /* Arrows nudge the way they point. */
+  :root.sf-motion:not([data-nt-mode]) [data-arrow] {
+    transition: transform var(--sf-motion-arrow) var(--sf-motion-ease-soft);
+  }
+  :root.sf-motion:not([data-nt-mode]) :is(a, button):hover [data-arrow] {
+    transform: translateX(var(--sf-motion-arrow-travel));
+  }
+
+  /* Cards: a 2px accent rule draws along the foot of the card, from the
+     left. No shadow, no lift. The rule exists only while the pointer is
+     on the card, so a card at rest is untouched. data-card="light" or
+     "dark" for the band it sits on. */
+  :root.sf-motion:not([data-nt-mode]) [data-card]:hover {
+    position: relative;
+  }
+  :root.sf-motion:not([data-nt-mode]) [data-card]:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--sf-red);
+    transform-origin: left center;
+    animation: sf-draw var(--sf-motion-rule) var(--sf-motion-ease-soft) backwards;
+    pointer-events: none;
+    border-radius: 0 0 var(--sf-radius-card) var(--sf-radius-card);
+  }
+  :root.sf-motion:not([data-nt-mode]) [data-card~="dark"]:hover::after {
+    background-color: var(--sf-orange);
+  }
+}
+
+/* ---------- 4. Homepage hero, on load ----------
+   Headline, sub-paragraph and buttons fade up once, a beat apart. Never
+   the photograph. The page numbers them with data-hero-in.
+
+   THEY START AT 35%, NOT AT ZERO. The headline (the sub-paragraph on
+   phones) is the page's Largest Contentful Paint element, and text at
+   opacity 0 does not count as painted. From 35% the copy is legible in
+   the first frame, so LCP stays at first paint; the entrance is carried
+   by the travel and the length of the fade. Do not lower it. */
+@keyframes sf-hero-fade {
+  from {
+    opacity: 0.35;
+  }
+}
+
+@keyframes sf-rise {
+  from {
+    transform: translateY(var(--sf-motion-hero-travel));
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  :root.sf-motion:not([data-nt-mode]) [data-hero-in] {
+    animation:
+      sf-hero-fade var(--sf-motion-hero) var(--sf-motion-ease-soft) backwards,
+      sf-rise var(--sf-motion-hero) var(--sf-motion-ease) backwards;
+  }
+  :root.sf-motion:not([data-nt-mode]) [data-hero-in="2"] {
+    animation-delay: var(--sf-motion-hero-step);
+  }
+  :root.sf-motion:not([data-nt-mode]) [data-hero-in="3"] {
+    animation-delay: calc(2 * var(--sf-motion-hero-step));
+  }
+}

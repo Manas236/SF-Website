@@ -1,0 +1,58 @@
+---
+/* ============================================================
+   GalleryGrid: one service's photographs as a tile grid
+   ------------------------------------------------------------
+   3:2 tiles, caption over a soft scrim at the foot. Click (or Enter on
+   the button) to enlarge: every tile opens Lightbox.astro, which must
+   be rendered once on any page that renders this grid.
+
+   CAPTIONS ARE NOT IN-PAGE EDITABLE. A caption is one value per
+   photograph, edited in /studio/gallery and shown everywhere that photo
+   appears (src/lib/gallery-live.ts). The figcaption carries
+   data-no-edit.
+   ============================================================ */
+import type { GalleryPhoto } from "../data/gallery";
+import { photoSources } from "../lib/gallery-images";
+import Photo from "./Photo.astro";
+
+interface Props {
+  /** The service name: prefixes every alt text. */
+  label: string;
+  photos: readonly GalleryPhoto[];
+  /** Lightbox group: previous/next cycle within one group only. */
+  group: string;
+}
+
+const { label, photos, group } = Astro.props;
+---
+
+<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {
+    photos.map((photo) => {
+      const alt = `${label}. ${photo.caption}`;
+      return (
+        <li>
+          <figure
+            class="relative aspect-[3/2] overflow-hidden rounded-[var(--sf-radius-card)] bg-paper-2 cursor-pointer"
+            data-lightbox-item
+            data-lightbox-group={group}
+            data-lightbox-src={photoSources(photo.file).full}
+          >
+            <Photo
+              file={photo.file}
+              alt={alt}
+              sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
+              pictureClass="absolute inset-0"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" aria-hidden="true" />
+            <button type="button" class="absolute inset-0 w-full h-full cursor-pointer" aria-haspopup="dialog" aria-label={`Enlarge: ${alt}`} />
+            <figcaption class="absolute inset-x-0 bottom-0 p-4 text-[0.88rem] leading-snug text-white pointer-events-none" data-no-edit>
+              {photo.caption}
+            </figcaption>
+          </figure>
+        </li>
+      );
+    })
+  }
+</ul>

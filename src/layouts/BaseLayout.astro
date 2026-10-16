@@ -1,0 +1,362 @@
+---
+/* ============================================================
+   BaseLayout: the document shell
+   ------------------------------------------------------------
+   Head (title, description, robots, canonical, share card, JSON-LD,
+   fonts) and the script tags that mount motion and the in-page editor.
+   Everything visible comes through <slot />.
+
+   IN-PAGE TEXT EDITING is injected here and only here, as two scripts.
+
+   1. An inline head script, window.__ntEdit. It must be inline and
+      early: it starts the fetch for this page's saved text while the
+      document is still parsing, and paints the copy cached in
+      localStorage the moment the DOM exists, before the deferred editor
+      runs. It owns the two things both halves must agree on: how an
+      element's key is read (its data-edit attribute) and how text is
+      normalised before comparing.
+
+   2. A bundled module at the end of the body: the editor itself.
+
+   THE TWO HALVES ARE GATED DIFFERENTLY, on purpose. Part 1 is the READ
+   path and runs for everybody, always: it is what shows visitors the
+   text the client wrote. Part 2 is downloaded only by a browser holding
+   the `sf_edit_ui=1` hint cookie that /api/edit-session sets at sign-in.
+   That cookie is a hint and nothing more; the write routes check the
+   signed `sf_edit` cookie (src/lib/edit-auth.ts). Never make a server
+   decision from `sf_edit_ui`.
+
+   MOTION uses the same split. An inline head script puts `sf-motion` on
+   <html> before the body is parsed; every rule in motion.css hangs off
+   it, so with no script nothing moves. It is left off on /studio/* and
+   when a signed-in editor's last page was in edit mode. The scroll
+   reveal is a bundled script at the end of the body.
+
+   An inline script followed by a multi-line HTML comment can trip the
+   Astro compiler, so comments down in the markup stay on one line.
+   ============================================================ */
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/700.css";
+import "../styles/global.css";
+
+import poppins400 from "@fontsource/poppins/files/poppins-latin-400-normal.woff2?url";
+import poppins600 from "@fontsource/poppins/files/poppins-latin-600-normal.woff2?url";
+import poppins700 from "@fontsource/poppins/files/poppins-latin-700-normal.woff2?url";
+
+import { CACHE_PREFIX } from "../lib/editable";
+import { isNoindexDeployment } from "../lib/staging";
+import { site, services } from "../data/site";
+
+interface Props {
+  /** The page's own name: the tab reads "<page> | Samruddhi Fire".
+      Omitted on the homepage, whose title is the name alone. */
+  page?: string;
+  /** 155 characters or less (scripts/verify-site.mjs checks). */
+  description: string;
+  /** Keep this page out of the index whatever SITE_NOINDEX says. */
+  noindex?: boolean;
+}
+
+const { page, description, noindex = false } = Astro.props;
+
+const title = page ? `${page} | ${site.name}` : site.name;
+const robotsOff = noindex || isNoindexDeployment();
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+/* ---------- Share card ----------
+   One designed 1200x630 card for every page (public/share-card.png,
+   written by scripts/build-share-card.mjs): the logo and the name. */
+const share = {
+  url: new URL("/share-card.png", Astro.site).href,
+  width: 1200,
+  height: 630,
+  alt: `${site.name} logo and name`,
+};
+
+/* ---------- Structured data ----------
+   One LocalBusiness block with only the verified facts in
+   src/data/site.ts. Nothing else: no rating, no review count, no
+   founding year, no price range. `<\/` is escaped so a "</script>"
+   inside a string cannot end the tag early. */
+const businessLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": new URL("/#business", Astro.site).href,
+  name: site.name,
+  url: new URL("/", Astro.site).href,
+  logo: new URL("/images/logo/sf-logo-512.png", Astro.site).href,
+  image: share.url,
+  telephone: site.phone.e164,
+  email: site.email,
+  taxID: site.gstin,
+  founder: { "@type": "Person", name: site.founder },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: site.address.streetAddress,
+    addressLocality: site.address.locality,
+    postalCode: site.address.postalCode,
+    addressCountry: site.address.country,
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: site.hours.days,
+      opens: site.hours.opens,
+      closes: site.hours.closes,
+    },
+  ],
+  areaServed: site.areas.map((name) => ({ "@type": "City", name })),
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Services",
+    itemListElement: services.map((s) => ({
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name: s.name },
+    })),
+  },
+};
+const jsonLd = (value: unknown) => JSON.stringify(value).replace(/<\//g, "<\\/");
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {robotsOff && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:image" content={share.url} />
+    <meta property="og:image:width" content={String(share.width)} />
+    <meta property="og:image:height" content={String(share.height)} />
+    <meta property="og:image:alt" content={share.alt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={share.url} />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#1b1311" />
+
+    <script type="application/ld+json" set:html={jsonLd(businessLd)} />
+
+    <link rel="preload" as="font" type="font/woff2" href={poppins400} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={poppins600} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={poppins700} crossorigin />
+
+    <link rel="stylesheet" href="/editor-ui.css" />
+
+    <!-- Motion switch: motion.css plays only under html.sf-motion. See the frontmatter. -->
+    <script is:inline>
+      (function () {
+        try {
+          var path = location.pathname;
+          if (path === "/studio" || path.indexOf("/studio/") === 0) return;
+          var editor = document.cookie.split("; ").indexOf("sf_edit_ui=1") !== -1;
+          if (editor && sessionStorage.getItem("sf-edit-mode") === "1") return;
+          document.documentElement.classList.add("sf-motion");
+        } catch (e) {
+          /* no class, no motion: the page is simply static */
+        }
+      })();
+    </script>
+
+    <!-- In-page text editing, part 1 of 2 (the read path). See the frontmatter. -->
+    <script is:inline define:vars={{ NT_CACHE_PREFIX: CACHE_PREFIX }}>
+      window.__ntEdit = (function () {
+        /* Escapes, not literals: these characters are invisible. */
+        var RE_NBSP = new RegExp(" ", "g");
+        var RE_ZERO_WIDTH = new RegExp("[​-‍﻿]", "g");
+
+        /* Same shape the server stores: lower case, no trailing slash. */
+        var path = location.pathname.split("?")[0].split("#")[0].toLowerCase();
+        if (path.length > 1) path = path.replace(/\/+$/, "");
+        if (!path) path = "/";
+
+        var cacheKey = NT_CACHE_PREFIX + path;
+
+        /* Mirrors normalizeText() in src/lib/editable.ts. */
+        function normalize(s) {
+          return String(s == null ? "" : s)
+            .replace(RE_NBSP, " ")
+            .replace(RE_ZERO_WIDTH, "")
+            .replace(/[\r\n\t]+/g, " ")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+        }
+
+        function textOf(el) {
+          return normalize(el.textContent);
+        }
+
+        /* Editable means one text node and nothing else. Anything richer
+           would lose its children the moment textContent was assigned. */
+        function isTextLeaf(el) {
+          return el.childNodes.length === 1 && el.firstChild.nodeType === 3 && normalize(el.firstChild.nodeValue) !== "";
+        }
+
+        function setText(el, t) {
+          el.textContent = t;
+        }
+
+        /* The editor's own furniture and blocks opted out by hand. */
+        var OPT_OUT = "svg, [data-nt-ui], [data-no-edit], [aria-hidden='true']";
+
+        /* THE KEY IS DECLARED, NOT COMPUTED. */
+        function keyFor(el) {
+          return (el && el.getAttribute && el.getAttribute("data-edit")) || "";
+        }
+
+        function elFor(key) {
+          if (!key) return null;
+          try {
+            var safe = window.CSS && CSS.escape ? CSS.escape(key) : key.replace(/"/g, "");
+            return document.body.querySelector('[data-edit="' + safe + '"]');
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function place(el, key, text, original) {
+          /* The anchor is what the page said when the edit was made:
+             recorded, not matched on. */
+          if (!el.dataset.ntOriginal) el.dataset.ntOriginal = original;
+          el.dataset.ntKey = key;
+          el.dataset.ntApplied = text;
+          el.setAttribute("data-nt-edited", "");
+          setText(el, text);
+          return el;
+        }
+
+        /* Find the slot; write to it. A key either names an element on
+           this page or names one that has been retired; there is no
+           fallback scan that could write it onto the wrong element. */
+        function applyOne(key, text, original) {
+          if (!text) return null;
+          var el = elFor(key);
+          if (!el || !isTextLeaf(el)) return null;
+          return place(el, key, text, original);
+        }
+
+        function applyAll(map) {
+          var n = 0;
+          if (!map) return n;
+          for (var key in map) {
+            if (!Object.prototype.hasOwnProperty.call(map, key)) continue;
+            var e = map[key];
+            if (e && applyOne(key, e.text, e.original)) n++;
+          }
+          return n;
+        }
+
+        function readCache() {
+          try {
+            return JSON.parse(localStorage.getItem(cacheKey) || "{}") || {};
+          } catch (e) {
+            return {};
+          }
+        }
+
+        function writeCache(map) {
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(map || {}));
+          } catch (e) {
+            /* private mode, or the quota is full: the page still works */
+          }
+        }
+
+        /* Off before the parser has reached the body. Never cached. */
+        var ready = fetch("/api/content?path=" + encodeURIComponent(path), {
+          credentials: "same-origin",
+          headers: { Accept: "application/json" },
+        })
+          .then(function (r) {
+            return r.ok ? r.json() : null;
+          })
+          .catch(function () {
+            return null;
+          });
+
+        /* "interactive" fires once the document is parsed and BEFORE
+           deferred scripts run, so cached copy is on screen first. */
+        function whenParsed(fn) {
+          if (document.readyState !== "loading") return fn();
+          document.addEventListener("readystatechange", function onState() {
+            if (document.readyState === "loading") return;
+            document.removeEventListener("readystatechange", onState);
+            fn();
+          });
+        }
+
+        whenParsed(function () {
+          applyAll(readCache());
+        });
+
+        /* THE READ PATH: puts the saved text on the page for every
+           visitor. A null answer means offline or the database is down:
+           leave the cached copy rather than snap back to built text. */
+        function applyServer(data) {
+          if (!data || !data.edits) return;
+          applyAll(data.edits);
+          writeCache(data.edits);
+        }
+
+        var applied = ready.then(function (data) {
+          return new Promise(function (resolve) {
+            whenParsed(function () {
+              applyServer(data);
+              resolve(data);
+            });
+          });
+        });
+
+        return {
+          path: path,
+          cacheKey: cacheKey,
+          normalize: normalize,
+          textOf: textOf,
+          isTextLeaf: isTextLeaf,
+          setText: setText,
+          optOut: OPT_OUT,
+          keyFor: keyFor,
+          elFor: elFor,
+          applyOne: applyOne,
+          applyAll: applyAll,
+          readCache: readCache,
+          writeCache: writeCache,
+          ready: ready,
+          applied: applied,
+        };
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+
+    <!-- Scroll reveal: blocks below the fold fade up once as they arrive. -->
+    <script>
+      import "../scripts/reveal.js";
+    </script>
+
+    <!-- In-page text editing, part 2 of 2: the editor, for signed-in browsers only. -->
+    <script>
+      if (document.cookie.split("; ").some((c) => c === "sf_edit_ui=1")) {
+        import("../scripts/inline-edit.js");
+      }
+    </script>
+  </body>
+</html>

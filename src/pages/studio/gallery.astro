@@ -1,0 +1,141 @@
+---
+/* ============================================================
+   GET /studio/gallery: the gallery manager
+   ------------------------------------------------------------
+   Every photograph the site has, service by service: reorder it, move
+   it to another service, recaption it, hide it, put a hidden one back,
+   upload new ones (each needs a caption), and choose which photo fills
+   each page image (the homepage banner, the photo beside each service).
+   Changes are rows in gallery_events and show on the site at the next
+   page load: no rebuild, no deploy (src/lib/gallery-live.ts,
+   src/pages/api/gallery.ts).
+
+   SIGNED-IN EDITORS ONLY. Anyone else gets the same bodyless 404 the
+   sign-in page gives a wrong slug, so the page's existence is not
+   advertised. The static route wins over [key], so a sign-in slug of
+   literally "gallery" would be shadowed.
+
+   Editor tooling, like the sign-in page: its strings live here and in
+   src/scripts/gallery-manager.js, its markup carries no data-edit keys,
+   and its styles are in public/gallery-manager.css.
+   ============================================================ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { isAuthed } from "../../lib/edit-auth";
+import { site } from "../../data/site";
+
+export const prerender = false;
+
+if (!isAuthed(Astro.request)) {
+  return new Response(null, { status: 404, headers: { "X-Astro-Error": "true" } });
+}
+
+Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+Astro.response.headers.set("Cache-Control", "no-store");
+---
+
+<BaseLayout page="Gallery manager" description="Manage the site's photographs." noindex>
+  <link rel="stylesheet" href="/gallery-manager.css" />
+  <main class="gm" id="gm">
+    <header class="gm-top">
+      <div class="gm-top-inner">
+        <div class="gm-title">
+          <span class="gm-kicker">{site.name} studio</span>
+          <h1>Gallery manager</h1>
+        </div>
+        <div class="gm-stats" id="gm-stats" aria-live="polite"></div>
+        <div class="gm-actions">
+          <label class="gm-jump">
+            <span>Jump to</span>
+            <select id="gm-jump"></select>
+          </label>
+          <button type="button" class="gm-btn" id="gm-upload-open" aria-controls="gm-upload">Upload photos</button>
+          <button type="button" class="gm-btn" id="gm-history-open" aria-controls="gm-history">History</button>
+          <a class="gm-btn gm-btn-primary" href="/gallery">View the gallery</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="gm-help">
+      <p>
+        Changes go live as soon as you make them: the next time anyone opens a page, they see the new version. Nothing is
+        ever deleted. Every change is listed under <strong>History</strong>, where you can undo it.
+      </p>
+      <ul>
+        <li><strong>Reorder</strong>: drag a photo onto another one, or use the arrows.</li>
+        <li><strong>Move</strong>: pick another service from "Move to".</li>
+        <li><strong>Hide</strong>: takes a photo off the site. It stays here under "Hidden", ready to show again.</li>
+        <li><strong>Caption</strong>: click the caption to edit it. It changes everywhere the photo appears.</li>
+        <li><strong>Upload</strong>: "Upload photos" at the top, or "Upload here" on a service. Every photo needs a caption.</li>
+        <li><strong>Page images</strong>: "Site images" below picks the photo for each banner and service.</li>
+      </ul>
+    </section>
+
+    <div id="gm-banner" class="gm-banner" role="alert" hidden></div>
+
+    <section class="gm-slots-wrap" aria-labelledby="gm-slots-title">
+      <h2 class="gm-section" id="gm-slots-title">Site images</h2>
+      <p class="gm-note gm-slots-note">
+        The photos on the pages themselves. Choose any gallery photo for each one; its caption becomes the description
+        read out to people using screen readers. Upload a photo first if the one you want is not in the gallery yet.
+      </p>
+      <div id="gm-slots" class="gm-slots"></div>
+    </section>
+
+    <h2 class="gm-section gm-groups-title">Gallery</h2>
+    <div id="gm-groups" class="gm-groups">
+      <p class="gm-loading">Loading the gallery...</p>
+    </div>
+
+    <aside id="gm-history" class="gm-history" aria-label="History of changes" hidden>
+      <div class="gm-history-head">
+        <h2>History</h2>
+        <button type="button" class="gm-btn" id="gm-history-close">Close</button>
+      </div>
+      <ol id="gm-history-list"></ol>
+    </aside>
+
+    <dialog id="gm-upload" class="gm-upload" aria-labelledby="gm-upload-title">
+      <div class="gm-upload-head">
+        <h2 id="gm-upload-title">Upload photos</h2>
+        <button type="button" class="gm-btn" id="gm-upload-close">Close</button>
+      </div>
+      <label class="gm-field">
+        <span>Service</span>
+        <select id="gm-upload-group"></select>
+      </label>
+      <div class="gm-drop" id="gm-drop">
+        <p>
+          Drag photos here, or
+          <label class="gm-link gm-pick">choose photos<input id="gm-upload-input" type="file" accept="image/jpeg,image/png,image/webp" multiple /></label>.
+        </p>
+        <p class="gm-note">JPG, PNG or WebP, up to 25 MB each and at least 1000 px on the long side. Location data is removed before anything is saved.</p>
+      </div>
+      <ol id="gm-queue" class="gm-queue"></ol>
+      <div class="gm-upload-foot">
+        <span id="gm-upload-summary" class="gm-note"></span>
+        <button type="button" class="gm-btn gm-btn-primary" id="gm-upload-go" disabled>Upload</button>
+      </div>
+    </dialog>
+
+    <dialog id="gm-pick" class="gm-upload gm-picker" aria-labelledby="gm-pick-title">
+      <div class="gm-upload-head">
+        <h2 id="gm-pick-title">Choose a photo</h2>
+        <button type="button" class="gm-btn" id="gm-pick-close">Close</button>
+      </div>
+      <p class="gm-note" id="gm-pick-for"></p>
+      <div id="gm-pick-grid" class="gm-pick-grid"></div>
+    </dialog>
+
+    <dialog id="gm-preview" class="gm-preview">
+      <img id="gm-preview-img" alt="" />
+      <p id="gm-preview-cap"></p>
+      <form method="dialog"><button class="gm-btn" type="submit">Close</button></form>
+    </dialog>
+
+    <div id="gm-toast" class="gm-toast" role="status" hidden></div>
+  </main>
+
+  <script>
+    import "../../scripts/gallery-manager.js";
+  </script>
+</BaseLayout>

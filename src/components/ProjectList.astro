@@ -1,0 +1,66 @@
+---
+/* ============================================================
+   ProjectList: one list on /projects ("ongoing" or "completed")
+   ------------------------------------------------------------
+   The entries are project text blocks (src/lib/project-blocks.ts),
+   added in edit mode. A HEADING starts a project card and the
+   PARAGRAPHS after it are that project's description.
+
+   Each block is a wrapper (`data-block`, which the editor hangs its
+   move / remove buttons on) around ONE text leaf with an ordinary
+   `data-edit` key, `projects.blocks.<id>`, so changing its wording is
+   the same click-and-type as every other line on the site.
+
+   With no entries, the "empty" slot renders instead: the page's
+   designed "coming soon" state. The editor's "Add to this list" card
+   goes into [data-blocks-add] for a signed-in editor in edit mode.
+   ============================================================ */
+import { groupEntries, type TextBlock } from "../lib/project-blocks";
+
+interface Props {
+  slug: string;
+  blocks: readonly TextBlock[];
+}
+
+const { slug, blocks } = Astro.props;
+const entries = groupEntries(blocks);
+---
+
+<div data-text-blocks={slug}>
+  {
+    entries.length ? (
+      <ol class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {entries.map((entry, i) => (
+          <li class="relative bg-white border border-line rounded-[var(--sf-radius-card)] p-6 sm:p-7" data-card="light">
+            <span class="absolute top-6 right-6 text-[0.75rem] font-semibold text-muted tabular-nums" aria-hidden="true" data-no-edit>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            {entry.heading && (
+              <div class="relative pr-10" data-block={entry.heading.id}>
+                <h3 class="text-[1.15rem] font-semibold text-ink leading-snug" data-edit={`projects.blocks.${entry.heading.id}`}>
+                  {entry.heading.text}
+                </h3>
+              </div>
+            )}
+            {entry.body.map((b) => (
+              <div class="relative mt-3" data-block={b.id}>
+                <p class="text-[0.95rem] leading-relaxed text-ink-2" data-edit={`projects.blocks.${b.id}`}>
+                  {b.text}
+                </p>
+              </div>
+            ))}
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <slot name="empty" />
+    )
+  }
+  <div data-blocks-add></div>
+</div>
+
+<script>
+  if (document.cookie.split("; ").some((c) => c === "sf_edit_ui=1")) {
+    import("../scripts/project-blocks-editor.js");
+  }
+</script>

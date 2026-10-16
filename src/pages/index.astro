@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import T from "../components/T.astro";
+
+export const prerender = false;
+---
+
+<BaseLayout description="Fire safety systems installed, serviced and supplied in Mumbai, Navi Mumbai and Thane.">
+  <Nav page="home" />
+  <main>
+    <section class="pt-[120px] pb-20">
+      <div class="sf-container">
+        <T as="h1" k="home.hero.headline" text="Samruddhi Fire" class="text-4xl font-bold" />
+      </div>
+    </section>
+  </main>
+  <SiteFooter page="home" />
+</BaseLayout>

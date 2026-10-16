@@ -1,0 +1,180 @@
+---
+/* ============================================================
+   GET /studio/<slug>: the editor sign-in page
+   ------------------------------------------------------------
+   The only page not linked from anywhere, and the only one whose own
+   URL is a secret. Reaching it gets you a passphrase box and nothing
+   else: the slug controls who FINDS this page, the passphrase is what
+   opens anything (src/lib/edit-auth.ts).
+
+   A WRONG SLUG IS A 404 identical to any other missing page. The
+   response below is the one Astro's router emits for an unmatched
+   route: a bodyless 404 carrying `X-Astro-Error`, which the app turns
+   into the normal 404 page through the same code path as /nonsense.
+   (Astro.rewrite("/404") is not used: it can fail as a 500, and a 500
+   where every other bad path gives a 404 is itself a tell.) The header
+   is Astro-internal, so re-check it on an Astro major; if it stops being
+   honoured the failure is safe (a bare 404 that leaks nothing).
+   ============================================================ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { checkSlug, isAuthed } from "../../lib/edit-auth";
+import { site } from "../../data/site";
+
+export const prerender = false;
+
+if (!checkSlug(Astro.params.key ?? "")) {
+  return new Response(null, { status: 404, headers: { "X-Astro-Error": "true" } });
+}
+
+/* Set only after the slug has passed, so the 404 above carries none of
+   them. no-referrer: this page's full URL is the secret, and a
+   same-origin request would otherwise send it in Referer to the logs. */
+Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+Astro.response.headers.set("Referrer-Policy", "no-referrer");
+Astro.response.headers.set("Cache-Control", "no-store");
+
+const authed = isAuthed(Astro.request);
+---
+
+<BaseLayout page="Sign in" description="Editor sign-in." noindex>
+  <main class="sf-on-dark min-h-screen bg-ember text-on-dark flex items-center justify-center px-5 py-16">
+    <div class="w-full max-w-md">
+      <span class="sf-kicker">{site.name} studio</span>
+      <h1 class="text-3xl font-bold mt-4">
+        {authed ? "You are signed in to edit." : "Sign in to edit."}
+      </h1>
+
+      {
+        authed ? (
+          <div class="mt-8">
+            <p class="text-on-dark-2 leading-relaxed">
+              Editing is on for this browser. Open any page and press the <strong class="text-orange">Edit text</strong> button in the
+              bottom corner.
+            </p>
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <a href="/" class="sf-btn sf-btn-primary">Go to the site</a>
+              <a href="/studio/gallery" class="sf-btn sf-btn-outline">Manage photos</a>
+              <button id="out" type="button" class="sf-btn sf-btn-outline">Sign out</button>
+            </div>
+            <p id="err" class="mt-5 text-sm text-orange hidden" role="alert" />
+          </div>
+        ) : (
+          <div class="mt-8">
+            <p class="text-on-dark-2 leading-relaxed">
+              Enter the shared passphrase to turn on in-page editing for this browser. It lasts seven days.
+            </p>
+            <label for="pass" class="block text-xs font-semibold uppercase tracking-[0.14em] text-on-dark-2 mt-8 mb-2">
+              Passphrase
+            </label>
+            <input
+              id="pass"
+              type="password"
+              autocomplete="current-password"
+              autofocus
+              class="w-full bg-ember-2 border border-line-dark rounded-[var(--sf-radius-button)] px-4 py-3 text-on-dark focus:outline-none focus:border-orange"
+            />
+            <p id="err" class="mt-4 text-sm text-orange hidden" role="alert" />
+            <button id="go" type="button" class="sf-btn sf-btn-primary mt-6">
+              Sign in
+            </button>
+          </div>
+        )
+      }
+    </div>
+  </main>
+
+  <script is:inline>
+    (function () {
+      var err = document.getElementById("err");
+
+      function fail(message) {
+        if (!err) return;
+        err.textContent = message;
+        err.classList.remove("hidden");
+      }
+
+      function post(method, body) {
+        return fetch("/api/edit-session", {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: body ? JSON.stringify(body) : undefined,
+        });
+      }
+
+      /* replace, not assign: the secret URL must not sit one Back press
+         away in the history of a browser somebody else may pick up. */
+      function goHome() {
+        window.location.replace("/");
+      }
+
+      var out = document.getElementById("out");
+      if (out) {
+        out.addEventListener("click", function () {
+          out.disabled = true;
+          post("DELETE").then(
+            function (res) {
+              /* A 500 is a fulfilled promise: never look signed out
+                 while the cookie is still set. */
+              if (res.ok) {
+                goHome();
+                return;
+              }
+              out.disabled = false;
+              fail("Could not sign out. Try again.");
+            },
+            function () {
+              out.disabled = false;
+              fail("Could not reach the server. Try again.");
+            }
+          );
+        });
+        return;
+      }
+
+      var pass = document.getElementById("pass");
+      var go = document.getElementById("go");
+      if (!pass || !go) return;
+
+      var busy = false;
+
+      function submit() {
+        if (busy) return;
+        if (err) err.classList.add("hidden");
+
+        var value = pass.value;
+        if (!value) {
+          fail("Enter the passphrase.");
+          return;
+        }
+
+        busy = true;
+        go.disabled = true;
+
+        post("POST", { passphrase: value }).then(
+          function (res) {
+            if (res.ok) {
+              goHome();
+              return;
+            }
+            busy = false;
+            go.disabled = false;
+            pass.value = "";
+            pass.focus();
+            fail(res.status === 429 ? "Too many attempts. Wait a few minutes and try again." : "That passphrase is not right.");
+          },
+          function () {
+            busy = false;
+            go.disabled = false;
+            fail("Could not reach the server. Try again.");
+          }
+        );
+      }
+
+      go.addEventListener("click", submit);
+      pass.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") submit();
+      });
+    })();
+  </script>
+</BaseLayout>

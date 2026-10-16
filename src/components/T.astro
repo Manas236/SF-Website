@@ -1,0 +1,28 @@
+---
+/* ============================================================
+   T: one run of editable text
+   ------------------------------------------------------------
+   <T as="h2" k="about.story.heading" text={copy.story.heading} class="..." />
+
+   Renders the element with its declared slot key (data-edit) and, when
+   the text is a placeholder (src/data/placeholder.ts), the
+   data-placeholder marker. The text is the element's only child, which
+   is what the in-page editor needs (one key, one element, one run of
+   text). Keep it that way: never put markup inside a <T>.
+   ============================================================ */
+import { isPlaceholder } from "../data/placeholder";
+
+interface Props {
+  as?: string;
+  /** The edit key: page.section.field, lower case, dots between. */
+  k: string;
+  text: string;
+  class?: string;
+  id?: string;
+}
+
+const { as: Tag = "span", k, text, class: className, id } = Astro.props;
+const pending = isPlaceholder(text);
+---
+
+<Tag class={className} id={id} data-edit={k} data-placeholder={pending ? "" : undefined}>{text}</Tag>

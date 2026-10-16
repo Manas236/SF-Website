@@ -1,0 +1,111 @@
+---
+/* ============================================================
+   Lightbox: full-screen photo viewer for GalleryGrid tiles
+   ------------------------------------------------------------
+   Render once per page, inside <main>. A native <dialog> opened with
+   showModal(), so focus trapping, Escape-to-close and the inert page
+   behind it come from the browser. The photo is shown whole at its own
+   aspect ratio: the point of opening it is to see the photograph.
+
+   The caption and counter are filled in by script from the tile that
+   was clicked, so they ship empty and carry data-no-edit.
+
+   Keys: ArrowLeft / ArrowRight step through the clicked tile's group;
+   Escape closes; so does a click anywhere that is not the photo or a
+   button.
+
+   Every page with managed photographs renders this, so it also loads
+   the edit-mode "Manage photos" link for a signed-in editor.
+   ============================================================ */
+interface Props {
+  labels: { readonly previous: string; readonly next: string; readonly close: string };
+  /** Label keys are `${keyPrefix}.previous` / `.next` / `.close`. */
+  keyPrefix: string;
+}
+
+const { labels, keyPrefix } = Astro.props;
+const ghost = "inline-flex items-center min-h-11 px-5 rounded-[var(--sf-radius-button)] border border-white/30 text-white text-[0.92rem] font-medium cursor-pointer hover:border-orange hover:text-orange";
+---
+
+<dialog class="w-full h-full max-w-none max-h-none m-0 p-0 bg-ember/95 backdrop:bg-black/70" data-lightbox>
+  <div class="h-full sf-container py-5 flex flex-col gap-4">
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-[0.85rem] text-on-dark-2" data-lightbox-count data-no-edit></span>
+      <button type="button" class={ghost} data-lightbox-close>
+        <span data-edit={`${keyPrefix}.close`}>{labels.close}</span>
+      </button>
+    </div>
+
+    <figure class="flex-1 min-h-0 flex flex-col items-center gap-4">
+      <div class="flex-1 min-h-0 w-full flex items-center justify-center">
+        <img class="max-w-full max-h-full w-auto h-auto rounded-[var(--sf-radius-card)]" alt="" data-lightbox-image />
+      </div>
+      <figcaption class="text-[0.95rem] text-on-dark text-center max-w-2xl" data-lightbox-caption data-no-edit></figcaption>
+    </figure>
+
+    <div class="flex items-center justify-center gap-3" data-lightbox-nav>
+      <button type="button" class={ghost} data-lightbox-prev>
+        <span data-edit={`${keyPrefix}.previous`}>{labels.previous}</span>
+      </button>
+      <button type="button" class={ghost} data-lightbox-next>
+        <span data-edit={`${keyPrefix}.next`}>{labels.next}</span>
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
+
+  if (dialog) {
+    const image = dialog.querySelector<HTMLImageElement>("[data-lightbox-image]")!;
+    const caption = dialog.querySelector<HTMLElement>("[data-lightbox-caption]")!;
+    const count = dialog.querySelector<HTMLElement>("[data-lightbox-count]")!;
+    const nav = dialog.querySelector<HTMLElement>("[data-lightbox-nav]")!;
+
+    let items: HTMLElement[] = [];
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      const item = items[index];
+      image.src = item.dataset.lightboxSrc ?? "";
+      image.alt = item.querySelector("img")?.alt ?? "";
+      caption.textContent = item.querySelector("figcaption")?.textContent?.trim() ?? "";
+      count.textContent = `${index + 1} / ${items.length}`;
+      nav.classList.toggle("hidden", items.length < 2);
+    };
+
+    document.querySelectorAll<HTMLElement>("[data-lightbox-item]").forEach((item) => {
+      item.addEventListener("click", () => {
+        const group = item.dataset.lightboxGroup;
+        items = [...document.querySelectorAll<HTMLElement>("[data-lightbox-item]")].filter((el) => el.dataset.lightboxGroup === group);
+        show(items.indexOf(item));
+        dialog.showModal();
+      });
+    });
+
+    dialog.querySelector("[data-lightbox-prev]")!.addEventListener("click", () => show(index - 1));
+    dialog.querySelector("[data-lightbox-next]")!.addEventListener("click", () => show(index + 1));
+    dialog.querySelector("[data-lightbox-close]")!.addEventListener("click", () => dialog.close());
+
+    dialog.addEventListener("click", (e) => {
+      if (!(e.target as Element).closest("img, button")) dialog.close();
+    });
+
+    dialog.addEventListener("keydown", (e) => {
+      if (items.length < 2) return;
+      if (e.key === "ArrowLeft") show(index - 1);
+      if (e.key === "ArrowRight") show(index + 1);
+    });
+
+    dialog.addEventListener("close", () => image.removeAttribute("src"));
+  }
+</script>
+
+<!-- Edit mode: a link to the studio gallery manager, signed-in editors only. -->
+<script>
+  if (document.cookie.split("; ").some((c) => c === "sf_edit_ui=1")) {
+    import("../scripts/gallery-manage-link.js");
+  }
+</script>

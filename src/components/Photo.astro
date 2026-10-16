@@ -1,0 +1,39 @@
+---
+/* ============================================================
+   Photo: one gallery photograph as a responsive <picture>
+   ------------------------------------------------------------
+   WebP at several widths, a JPEG every browser can show, and an
+   explicit width and height so the box is reserved before the file
+   arrives (no layout shift). Works for stock photos and studio uploads
+   alike (src/lib/gallery-images.ts).
+   ============================================================ */
+import { photoSources } from "../lib/gallery-images";
+
+interface Props {
+  file: string;
+  alt: string;
+  /** The `sizes` attribute: how wide the photo is drawn. */
+  sizes: string;
+  class?: string;
+  pictureClass?: string;
+  loading?: "lazy" | "eager";
+  priority?: boolean;
+}
+
+const { file, alt, sizes, class: imgClass, pictureClass, loading = "lazy", priority = false } = Astro.props;
+const s = photoSources(file);
+---
+
+<picture class={pictureClass}>
+  <source type="image/webp" srcset={s.srcset} sizes={sizes} />
+  <img
+    src={s.fallback}
+    alt={alt}
+    width={s.width}
+    height={s.height}
+    loading={priority ? "eager" : loading}
+    decoding={priority ? "sync" : "async"}
+    fetchpriority={priority ? "high" : undefined}
+    class={imgClass}
+  />
+</picture>
