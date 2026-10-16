@@ -1,54 +1,74 @@
 /* ============================================================
-   Design tokens: PROVISIONAL
+   Design tokens: Samruddhi Fire
    ------------------------------------------------------------
-   The token NAMES are final; the VALUES are placeholders until the
-   brand source (the QMS landing page) is confirmed. Step 4 of the build
-   replaces the values in this file and nothing else.
+   Lifted exactly from the Samruddhi Fire QMS (branding.py and the
+   shared stylesheet in chrome.py), so the website and the QMS read as
+   one brand. Source, and what each value is for: docs/DESIGN-SYSTEM.md.
+
+   Every colour the site uses is here. Pages and components use these
+   through Tailwind utilities (bg-red, text-navy, ...) or var(--sf-*),
+   never a raw hex.
    ============================================================ */
 :root {
-  --sf-ember: #1b1311;
-  --sf-ember-2: #251a17;
-  --sf-ember-3: #33241f;
-  --sf-paper: #fbf8f6;
-  --sf-paper-2: #f3ece8;
+  /* Brand, sampled from the logo and the painted signboard. */
+  --sf-red: #d5121a; /* the "S" and SAMRUDDHI: primary action colour */
+  --sf-red-dark: #a50d14; /* hover, pressed */
+  --sf-red-light: #fdecec; /* tinted surfaces, pills, icon wells */
+  --sf-navy: #2a086e; /* the "F" and FIRE: headings, nav, ink accents */
+  --sf-navy-dark: #1c0449; /* dark bands: hero, footer */
+  --sf-navy-light: #edeaf9; /* tinted surfaces; text on navy */
+  --sf-saffron: #f2944a; /* the signboard motif: small accents only */
+
+  /* On dark surfaces the print red goes muddy: the QMS's dark variant. */
+  --sf-red-on-dark: #ff5a5f;
+
+  /* Neutrals. */
+  --sf-ink: #1a1626; /* body text, warmed toward the navy */
+  --sf-muted: #6b6478;
+  --sf-border: #e4e0ec;
+  --sf-surface: #ffffff;
+  --sf-canvas: #f6f4f9; /* the page ground */
   --sf-white: #ffffff;
-  --sf-ink: #1b1311;
-  --sf-ink-2: #4b3f3b;
-  --sf-muted: #8e817c;
-  --sf-on-dark: #f6efec;
-  --sf-on-dark-2: #c9bcb6;
-  --sf-red: #d5121a;
-  --sf-red-dark: #a50d14;
-  --sf-orange: #f2944a;
-  --sf-line: #e6dcd7;
-  --sf-line-dark: #3d2d28;
-  --sf-whatsapp: #1f7a4d;
 
-  --sf-radius-card: 14px;
-  --sf-radius-button: 10px;
-  --sf-radius-chip: 999px;
+  /* "Still needs the client's real data": the QMS's todo chip, used
+     here for the same job (placeholders, src/data/placeholder.ts). */
+  --sf-todo-bg: #fff4d6;
+  --sf-todo-ink: #8a5a00;
+  --sf-todo-border: #e0a93b;
 
-  --sf-font: "Poppins", "Poppins Fallback", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  /* Elevation. */
+  --sf-shadow-sm: 0 1px 3px rgba(26, 22, 38, 0.08), 0 1px 2px rgba(26, 22, 38, 0.06);
+  --sf-shadow-md: 0 6px 20px rgba(42, 8, 110, 0.14), 0 2px 6px rgba(26, 22, 38, 0.08);
+
+  /* Shape. */
+  --sf-radius-card: 14px; /* cards, panels, photos */
+  --sf-radius-icon: 12px; /* icon wells */
+  --sf-radius-button: 8px; /* buttons, inputs */
+  --sf-radius-pill: 20px; /* pills and chips */
+
+  /* Type: DM Sans 400, 500, 600, 700 (self-hosted, OFL). */
+  --sf-font: "DM Sans", "DM Sans Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 @theme inline {
   --font-sans: var(--sf-font);
-  --color-ember: var(--sf-ember);
-  --color-ember-2: var(--sf-ember-2);
-  --color-ember-3: var(--sf-ember-3);
-  --color-paper: var(--sf-paper);
-  --color-paper-2: var(--sf-paper-2);
-  --color-ink: var(--sf-ink);
-  --color-ink-2: var(--sf-ink-2);
-  --color-muted: var(--sf-muted);
-  --color-on-dark: var(--sf-on-dark);
-  --color-on-dark-2: var(--sf-on-dark-2);
   --color-red: var(--sf-red);
   --color-red-dark: var(--sf-red-dark);
-  --color-orange: var(--sf-orange);
-  --color-line: var(--sf-line);
-  --color-line-dark: var(--sf-line-dark);
-  --color-whatsapp: var(--sf-whatsapp);
+  --color-red-light: var(--sf-red-light);
+  --color-red-on-dark: var(--sf-red-on-dark);
+  --color-navy: var(--sf-navy);
+  --color-navy-dark: var(--sf-navy-dark);
+  --color-navy-light: var(--sf-navy-light);
+  --color-saffron: var(--sf-saffron);
+  --color-ink: var(--sf-ink);
+  --color-muted: var(--sf-muted);
+  --color-border: var(--sf-border);
+  --color-surface: var(--sf-surface);
+  --color-canvas: var(--sf-canvas);
   --radius-card: var(--sf-radius-card);
+  --radius-icon: var(--sf-radius-icon);
   --radius-button: var(--sf-radius-button);
+  --radius-pill: var(--sf-radius-pill);
+  --shadow-sm: var(--sf-shadow-sm);
+  --shadow-md: var(--sf-shadow-md);
 }

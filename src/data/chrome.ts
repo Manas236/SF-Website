@@ -51,6 +51,8 @@ export const footer = {
       call: "Call",
       whatsapp: "WhatsApp",
       email: "Email",
+      phoneLabel: "Phone",
+      emailLabel: "Email",
       hoursLabel: "Hours",
       addressLabel: "Office",
       mapTitle: `Map showing the ${site.name} office in Koparkhairane, Navi Mumbai`,

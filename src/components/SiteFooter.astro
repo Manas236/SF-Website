@@ -2,18 +2,18 @@
 /* ============================================================
    Footer: brand and contact, two link columns, the map, bottom bar
    ------------------------------------------------------------
-   The whole contact surface is here on every page: Call, WhatsApp and
-   Email buttons, the address, the hours, and a live Google Maps embed
-   (no API key). The map is lazy-loaded and sits in a fixed-ratio box,
-   so it costs nothing until it is near the screen and never shifts the
-   page when it arrives.
+   A navy band (the brand's dark colour). The whole contact surface is
+   here on every page: Call, WhatsApp and Email buttons, the address,
+   the hours, and a live Google Maps embed (no API key). The map is
+   lazy-loaded and sits in a fixed-ratio box, so it costs nothing until
+   it is near the screen and never shifts the page when it arrives.
 
-   The year is generated and sits in its own data-no-edit span, so an
-   edit to the line beside it can never freeze a year into the copy.
-   The credit line and GSTIN are facts, not copy, and are not editable.
+   The year is generated and sits in a data-no-edit span. The GSTIN and
+   the credit line are facts, not copy, and are not editable.
    ============================================================ */
 import { footer } from "../data/chrome";
 import { directionsUrl, mailHref, mapEmbedUrl, services, site, telHref } from "../data/site";
+import { icons } from "../data/icons";
 
 interface Props {
   /** First segment of every edit key this component writes. */
@@ -24,37 +24,44 @@ const { page } = Astro.props;
 const { company, contact } = footer.columns;
 const year = new Date().getFullYear();
 const k = (rest: string) => `${page}.footer.${rest}`;
+const [nameHead, nameTail] = [site.name.split(" ").slice(0, -1).join(" "), site.name.split(" ").slice(-1)[0]];
+const head = "text-white font-semibold text-[0.78rem] uppercase tracking-[0.12em]";
 ---
 
-<footer class="sf-on-dark bg-ember text-on-dark-2 pt-16 pb-8">
+<footer class="sf-on-dark bg-navy-dark text-navy-light/85 pt-16 pb-8">
   <div class="sf-container">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_1fr_1.4fr] gap-10 lg:gap-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.75fr_1fr_1.45fr] gap-10 lg:gap-12">
       <div>
         <a href="/" class="inline-flex items-center gap-3" aria-label={`${site.name} home`}>
-          <img src="/images/logo/sf-logo-96.png" alt="" width="48" height="48" loading="lazy" class="w-12 h-12" />
-          <span class="text-on-dark font-bold text-lg" data-no-edit>{site.name}</span>
+          <span class="inline-flex rounded-full bg-white p-1"><img src="/images/logo/sf-logo-96.png" alt="" width="44" height="44" loading="lazy" class="w-11 h-11" /></span>
+          <span class="font-bold text-[1.05rem] tracking-[0.02em] uppercase leading-none" data-no-edit>
+            <span class="text-red-on-dark">{nameHead}</span> <span class="text-white">{nameTail}</span>
+          </span>
         </a>
-        <p class="mt-5 text-[0.92rem] leading-relaxed max-w-sm" data-edit={k("tagline")}>{footer.tagline}</p>
+        <p class="mt-5 text-[0.93rem] leading-relaxed max-w-sm" data-edit={k("tagline")}>{footer.tagline}</p>
         <div class="mt-6 flex flex-wrap gap-2.5">
-          <a href={telHref} class="sf-btn sf-btn-primary !min-h-11 !px-4 !text-[0.88rem]">
+          <a href={telHref} class="sf-btn sf-btn-primary !text-[0.9rem] !px-4">
+            <Fragment set:html={icons.phone} />
             <span data-edit={k("contact.call")}>{contact.call}</span>
           </a>
-          <a href={site.whatsapp.href} target="_blank" rel="noopener" class="sf-btn sf-btn-whatsapp !min-h-11 !px-4 !text-[0.88rem]">
+          <a href={site.whatsapp.href} target="_blank" rel="noopener" class="sf-btn sf-btn-light !text-[0.9rem] !px-4">
+            <Fragment set:html={icons.whatsapp} />
             <span data-edit={k("contact.whatsapp")}>{contact.whatsapp}</span>
           </a>
-          <a href={mailHref} class="sf-btn sf-btn-outline !min-h-11 !px-4 !text-[0.88rem] text-on-dark">
+          <a href={mailHref} class="sf-btn sf-btn-ghost !text-[0.9rem] !px-4">
+            <Fragment set:html={icons.mail} />
             <span data-edit={k("contact.email")}>{contact.email}</span>
           </a>
         </div>
       </div>
 
       <nav aria-labelledby="footer-company">
-        <h2 id="footer-company" class="text-on-dark font-semibold text-[0.8rem] uppercase tracking-[0.14em]" data-edit={k("columns.company.head")}>{company.head}</h2>
-        <ul class="mt-5 flex flex-col gap-3 text-[0.92rem]">
+        <h2 id="footer-company" class={head} data-edit={k("columns.company.head")}>{company.head}</h2>
+        <ul class="mt-5 flex flex-col gap-3 text-[0.93rem]">
           {
             company.links.map((link, i) => (
               <li>
-                <a href={link.href} class="hover:text-orange">
+                <a href={link.href} class="hover:text-white">
                   <span data-edit={k(`columns.company.links.${i}.label`)}>{link.label}</span>
                 </a>
               </li>
@@ -64,12 +71,12 @@ const k = (rest: string) => `${page}.footer.${rest}`;
       </nav>
 
       <nav aria-labelledby="footer-services">
-        <h2 id="footer-services" class="text-on-dark font-semibold text-[0.8rem] uppercase tracking-[0.14em]" data-edit={k("columns.services.head")}>{footer.columns.services.head}</h2>
-        <ul class="mt-5 flex flex-col gap-3 text-[0.92rem]">
+        <h2 id="footer-services" class={head} data-edit={k("columns.services.head")}>{footer.columns.services.head}</h2>
+        <ul class="mt-5 flex flex-col gap-3 text-[0.93rem]">
           {
             services.map((s, i) => (
               <li>
-                <a href={`/services#${s.id}`} class="hover:text-orange">
+                <a href={`/services#${s.id}`} class="hover:text-white">
                   <span data-edit={k(`columns.services.links.${i}`)}>{s.name}</span>
                 </a>
               </li>
@@ -79,39 +86,33 @@ const k = (rest: string) => `${page}.footer.${rest}`;
       </nav>
 
       <div>
-        <h2 class="text-on-dark font-semibold text-[0.8rem] uppercase tracking-[0.14em]" data-edit={k("columns.contact.head")}>{contact.head}</h2>
-        <dl class="mt-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 text-[0.92rem]">
-          <dt class="text-muted" data-edit={k("columns.contact.addressLabel")}>{contact.addressLabel}</dt>
+        <h2 class={head} data-edit={k("columns.contact.head")}>{contact.head}</h2>
+        <dl class="mt-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 text-[0.93rem]">
+          <dt class="text-navy-light/60" data-edit={k("columns.contact.addressLabel")}>{contact.addressLabel}</dt>
           <dd>
             <address class="not-italic" data-no-edit>
               {site.address.lines.map((line) => <span class="block">{line}</span>)}
             </address>
           </dd>
-          <dt class="text-muted" data-edit={k("columns.contact.call")}>{contact.call}</dt>
-          <dd><a href={telHref} class="hover:text-orange" data-no-edit>{site.phone.display}</a></dd>
-          <dt class="text-muted" data-edit={k("columns.contact.email")}>{contact.email}</dt>
-          <dd class="min-w-0"><a href={mailHref} class="hover:text-orange break-all" data-no-edit>{site.email}</a></dd>
-          <dt class="text-muted" data-edit={k("columns.contact.hoursLabel")}>{contact.hoursLabel}</dt>
+          <dt class="text-navy-light/60" data-edit={k("columns.contact.phoneLabel")}>{contact.phoneLabel}</dt>
+          <dd><a href={telHref} class="hover:text-white" data-no-edit>{site.phone.display}</a></dd>
+          <dt class="text-navy-light/60" data-edit={k("columns.contact.emailLabel")}>{contact.emailLabel}</dt>
+          <dd class="min-w-0"><a href={mailHref} class="hover:text-white break-all" data-no-edit>{site.email}</a></dd>
+          <dt class="text-navy-light/60" data-edit={k("columns.contact.hoursLabel")}>{contact.hoursLabel}</dt>
           <dd data-no-edit>{site.hours.display}</dd>
         </dl>
-        <div class="mt-5 relative aspect-[16/9] overflow-hidden rounded-[var(--sf-radius-card)] border border-line-dark bg-ember-2">
-          <iframe
-            src={mapEmbedUrl}
-            title={contact.mapTitle}
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            class="absolute inset-0 w-full h-full border-0"
-          ></iframe>
+        <div class="mt-5 relative aspect-[16/9] overflow-hidden rounded-card border border-white/15 bg-navy">
+          <iframe src={mapEmbedUrl} title={contact.mapTitle} loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="absolute inset-0 w-full h-full border-0"></iframe>
         </div>
-        <a href={directionsUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-3 text-[0.9rem] text-orange hover:text-on-dark">
+        <a href={directionsUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-3 text-[0.92rem] font-medium text-saffron hover:text-white">
           <span data-edit={k("columns.contact.directions")}>{contact.directions}</span>
           <span data-arrow aria-hidden="true">&rarr;</span>
         </a>
       </div>
     </div>
 
-    <div class="mt-14 pt-6 border-t border-line-dark flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-[0.82rem]">
-      <p data-no-edit>&copy; {year} {site.name}. {footer.bottom.gstinLabel} {site.gstin}</p>
+    <div class="mt-14 pt-6 border-t border-white/15 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-[0.82rem] text-navy-light/70">
+      <p><span data-no-edit>&copy; {year} {site.name}.</span> <span data-no-edit>{footer.bottom.gstinLabel} {site.gstin}</span></p>
       <p data-no-edit>{site.credit}</p>
     </div>
   </div>

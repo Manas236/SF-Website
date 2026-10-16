@@ -20,7 +20,7 @@ repository (see "Strip" at the end).
 | Images | `sharp` (uploads, dHash, share card) | same |
 | Mail | `nodemailer` (careers form only) | kept, now for contact-form leads |
 | Checks | `playwright` (dev) | same |
-| Fonts | two `@fontsource-variable` families | dropped; `@fontsource/poppins` instead |
+| Fonts | two `@fontsource-variable` families | dropped; `@fontsource/dm-sans` instead (the QMS's face, docs/DESIGN-SYSTEM.md) |
 | Sitemap | a hand-written `/sitemap.xml` endpoint, no integration | `@astrojs/sitemap`, as the SF brief asks (every SF route is a fixed path, so the build-time integration sees all of them) |
 
 `package.json` and `package-lock.json` were taken from the source so the

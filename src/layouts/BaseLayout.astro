@@ -35,15 +35,18 @@
    An inline script followed by a multi-line HTML comment can trip the
    Astro compiler, so comments down in the markup stay on one line.
    ============================================================ */
-import "@fontsource/poppins/400.css";
-import "@fontsource/poppins/500.css";
-import "@fontsource/poppins/600.css";
-import "@fontsource/poppins/700.css";
+/* DM Sans, the QMS's face, at the four weights it uses. Self-hosted, so
+   no request leaves the site for a font. The three weights above the
+   fold are preloaded so text never swaps in after first paint. */
+import "@fontsource/dm-sans/400.css";
+import "@fontsource/dm-sans/500.css";
+import "@fontsource/dm-sans/600.css";
+import "@fontsource/dm-sans/700.css";
 import "../styles/global.css";
 
-import poppins400 from "@fontsource/poppins/files/poppins-latin-400-normal.woff2?url";
-import poppins600 from "@fontsource/poppins/files/poppins-latin-600-normal.woff2?url";
-import poppins700 from "@fontsource/poppins/files/poppins-latin-700-normal.woff2?url";
+import dmSans400 from "@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2?url";
+import dmSans600 from "@fontsource/dm-sans/files/dm-sans-latin-600-normal.woff2?url";
+import dmSans700 from "@fontsource/dm-sans/files/dm-sans-latin-700-normal.woff2?url";
 
 import { CACHE_PREFIX } from "../lib/editable";
 import { isNoindexDeployment } from "../lib/staging";
@@ -150,13 +153,13 @@ const jsonLd = (value: unknown) => JSON.stringify(value).replace(/<\//g, "<\\/")
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#1b1311" />
+    <meta name="theme-color" content="#2a086e" />
 
     <script type="application/ld+json" set:html={jsonLd(businessLd)} />
 
-    <link rel="preload" as="font" type="font/woff2" href={poppins400} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={poppins600} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={poppins700} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={dmSans400} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={dmSans600} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={dmSans700} crossorigin />
 
     <link rel="stylesheet" href="/editor-ui.css" />
 

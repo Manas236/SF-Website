@@ -7,14 +7,14 @@
    ============================================================ */
 
 .gm {
-  --gm-ink: var(--sf-ink, #1b1311);
-  --gm-deep: var(--sf-ember, #1b1311);
-  --gm-paper: var(--sf-paper, #fbf8f6);
-  --gm-on-dark: var(--sf-on-dark, #f6efec);
+  --gm-ink: var(--sf-ink, #1a1626);
+  --gm-deep: var(--sf-navy-dark, #1c0449);
+  --gm-paper: var(--sf-canvas, #f6f4f9);
+  --gm-on-dark: var(--sf-navy-light, #edeaf9);
   --gm-accent: var(--sf-red, #d5121a);
-  --gm-accent-2: var(--sf-orange, #f2944a);
-  --gm-muted: var(--sf-ink-2, #4b3f3b);
-  --gm-line: var(--sf-line, #e6dcd7);
+  --gm-accent-2: var(--sf-saffron, #f2944a);
+  --gm-muted: var(--sf-muted, #6b6478);
+  --gm-line: var(--sf-border, #e4e0ec);
   --gm-r: 10px;
   background: var(--gm-paper);
   color: var(--gm-ink);
@@ -287,7 +287,7 @@
   display: block;
   padding: 0;
   border: 0;
-  background: var(--sf-paper-2, #f3ece8);
+  background: var(--sf-border, #e4e0ec);
   aspect-ratio: 3 / 2;
   overflow: hidden;
   cursor: zoom-in;
@@ -459,7 +459,7 @@
   height: 40px;
   object-fit: cover;
   border-radius: 6px;
-  background: var(--sf-paper-2, #f3ece8);
+  background: var(--sf-border, #e4e0ec);
 }
 .gm-history li.is-undone p {
   text-decoration: line-through;
@@ -477,7 +477,7 @@
 }
 .gm-preview::backdrop,
 .gm-upload::backdrop {
-  background: rgba(27, 19, 17, 0.75);
+  background: rgba(26, 22, 38, 0.75);
 }
 .gm-preview img {
   display: block;
@@ -628,7 +628,7 @@ body.gm-busy .gm-slots {
   aspect-ratio: 3 / 2;
   object-fit: cover;
   border-radius: 6px;
-  background: var(--sf-paper-2, #f3ece8);
+  background: var(--sf-border, #e4e0ec);
 }
 .gm-q-body {
   display: flex;
@@ -661,7 +661,7 @@ body.gm-busy .gm-slots {
 .gm-bar {
   height: 4px;
   border-radius: 4px;
-  background: var(--sf-paper-2, #f3ece8);
+  background: var(--sf-border, #e4e0ec);
 }
 .gm-bar span {
   display: block;

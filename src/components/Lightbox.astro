@@ -24,13 +24,13 @@ interface Props {
 }
 
 const { labels, keyPrefix } = Astro.props;
-const ghost = "inline-flex items-center min-h-11 px-5 rounded-[var(--sf-radius-button)] border border-white/30 text-white text-[0.92rem] font-medium cursor-pointer hover:border-orange hover:text-orange";
+const ghost = "inline-flex items-center min-h-11 px-5 rounded-button border border-white/30 text-white text-[0.92rem] font-medium cursor-pointer hover:border-white hover:bg-white/10";
 ---
 
-<dialog class="w-full h-full max-w-none max-h-none m-0 p-0 bg-ember/95 backdrop:bg-black/70" data-lightbox>
+<dialog class="w-full h-full max-w-none max-h-none m-0 p-0 bg-navy-dark/95 backdrop:bg-black/70" data-lightbox>
   <div class="h-full sf-container py-5 flex flex-col gap-4">
     <div class="flex items-center justify-between gap-4">
-      <span class="text-[0.85rem] text-on-dark-2" data-lightbox-count data-no-edit></span>
+      <span class="text-[0.85rem] text-navy-light/80" data-lightbox-count data-no-edit></span>
       <button type="button" class={ghost} data-lightbox-close>
         <span data-edit={`${keyPrefix}.close`}>{labels.close}</span>
       </button>
@@ -38,9 +38,9 @@ const ghost = "inline-flex items-center min-h-11 px-5 rounded-[var(--sf-radius-b
 
     <figure class="flex-1 min-h-0 flex flex-col items-center gap-4">
       <div class="flex-1 min-h-0 w-full flex items-center justify-center">
-        <img class="max-w-full max-h-full w-auto h-auto rounded-[var(--sf-radius-card)]" alt="" data-lightbox-image />
+        <img class="max-w-full max-h-full w-auto h-auto rounded-card" alt="" data-lightbox-image />
       </div>
-      <figcaption class="text-[0.95rem] text-on-dark text-center max-w-2xl" data-lightbox-caption data-no-edit></figcaption>
+      <figcaption class="text-[0.95rem] text-white text-center max-w-2xl" data-lightbox-caption data-no-edit></figcaption>
     </figure>
 
     <div class="flex items-center justify-center gap-3" data-lightbox-nav>

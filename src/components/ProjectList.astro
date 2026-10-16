@@ -31,20 +31,20 @@ const entries = groupEntries(blocks);
     entries.length ? (
       <ol class="grid grid-cols-1 md:grid-cols-2 gap-5">
         {entries.map((entry, i) => (
-          <li class="relative bg-white border border-line rounded-[var(--sf-radius-card)] p-6 sm:p-7" data-card="light">
+          <li class="sf-card relative overflow-hidden p-6 sm:p-7" data-card>
             <span class="absolute top-6 right-6 text-[0.75rem] font-semibold text-muted tabular-nums" aria-hidden="true" data-no-edit>
               {String(i + 1).padStart(2, "0")}
             </span>
             {entry.heading && (
               <div class="relative pr-10" data-block={entry.heading.id}>
-                <h3 class="text-[1.15rem] font-semibold text-ink leading-snug" data-edit={`projects.blocks.${entry.heading.id}`}>
+                <h3 class="text-[1.15rem] font-bold text-navy leading-snug" data-edit={`projects.blocks.${entry.heading.id}`}>
                   {entry.heading.text}
                 </h3>
               </div>
             )}
             {entry.body.map((b) => (
               <div class="relative mt-3" data-block={b.id}>
-                <p class="text-[0.95rem] leading-relaxed text-ink-2" data-edit={`projects.blocks.${b.id}`}>
+                <p class="text-[0.95rem] leading-relaxed text-muted" data-edit={`projects.blocks.${b.id}`}>
                   {b.text}
                 </p>
               </div>

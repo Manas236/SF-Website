@@ -33,7 +33,7 @@ const { label, photos, group } = Astro.props;
       return (
         <li>
           <figure
-            class="relative aspect-[3/2] overflow-hidden rounded-[var(--sf-radius-card)] bg-paper-2 cursor-pointer"
+            class="relative aspect-[3/2] overflow-hidden rounded-card bg-border cursor-pointer"
             data-lightbox-item
             data-lightbox-group={group}
             data-lightbox-src={photoSources(photo.file).full}

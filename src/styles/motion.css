@@ -33,6 +33,9 @@
    Each @keyframes has a `from` and no `to` (sf-unroll alone has a `to`,
    §1), so it always ends on the element's own resting style. `backwards`
    holds the starting frame only while an item waits out its delay.
+
+   Hover states (§3) are not resting styles: a card lifts while the
+   pointer is on it and settles back the moment it leaves.
    ============================================================ */
 
 /* ---------- 0. Timing ----------
@@ -76,10 +79,15 @@
   --sf-motion-reveal-seen: 0.15;
   --sf-motion-reveal-line: 10%;
 
-  /* §3 Hover, pointer devices only. */
+  /* §3 Hover, pointer devices only. The card and button values are the
+     QMS's own (chrome.py: .card and .btn). */
   --sf-motion-zoom: calc(600ms * var(--sf-motion-pace));
   --sf-motion-zoom-scale: 1.04;
-  --sf-motion-rule: calc(350ms * var(--sf-motion-pace));
+  --sf-motion-card: calc(200ms * var(--sf-motion-pace));
+  --sf-motion-card-lift: 5px;
+  --sf-motion-rule: calc(250ms * var(--sf-motion-pace));
+  --sf-motion-button: calc(150ms * var(--sf-motion-pace));
+  --sf-motion-button-lift: 1px;
   --sf-motion-arrow: calc(300ms * var(--sf-motion-pace));
   --sf-motion-arrow-travel: 3px;
   --sf-motion-link: calc(300ms * var(--sf-motion-pace));
@@ -237,13 +245,6 @@
   }
 }
 
-/* A card's accent rule, drawn from the left. */
-@keyframes sf-draw {
-  from {
-    transform: scaleX(0);
-  }
-}
-
 @media screen and (hover: hover) and (prefers-reduced-motion: no-preference) {
   /* Photographs zoom a little inside their own frame. Every photo tile is
      an overflow-hidden box with the <img> (or its <picture>) as a direct
@@ -263,28 +264,51 @@
     transform: translateX(var(--sf-motion-arrow-travel));
   }
 
-  /* Cards: a 2px accent rule draws along the foot of the card, from the
-     left. No shadow, no lift. The rule exists only while the pointer is
-     on the card, so a card at rest is untouched. data-card="light" or
-     "dark" for the band it sits on. */
-  :root.sf-motion:not([data-nt-mode]) [data-card]:hover {
-    position: relative;
+  /* Cards, as the QMS draws them: on hover a card lifts a few pixels,
+     takes the deeper shadow, and a 3px red bar draws across its top from
+     the left. Transform and opacity-free: the bar is a pseudo-element the
+     card's own overflow clips, so nothing around it moves. A card at
+     rest is untouched. Mark a card with data-card. */
+  /* :not([data-reveal]): while a card is still fading in (§2), its own
+     reveal transition must win, so the hover transition waits. */
+  :root.sf-motion:not([data-nt-mode]) [data-card]:not([data-reveal]) {
+    transition:
+      transform var(--sf-motion-card) ease,
+      box-shadow var(--sf-motion-card) ease,
+      border-color var(--sf-motion-card) ease;
   }
-  :root.sf-motion:not([data-nt-mode]) [data-card]:hover::after {
+  :root.sf-motion:not([data-nt-mode]) [data-card]::before {
     content: "";
     position: absolute;
+    top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    height: 2px;
+    height: 3px;
     background-color: var(--sf-red);
+    transform: scaleX(0);
     transform-origin: left center;
-    animation: sf-draw var(--sf-motion-rule) var(--sf-motion-ease-soft) backwards;
+    transition: transform var(--sf-motion-rule) ease;
     pointer-events: none;
-    border-radius: 0 0 var(--sf-radius-card) var(--sf-radius-card);
+    z-index: 1;
   }
-  :root.sf-motion:not([data-nt-mode]) [data-card~="dark"]:hover::after {
-    background-color: var(--sf-orange);
+  :root.sf-motion:not([data-nt-mode]) [data-card]:not([data-reveal]):hover {
+    transform: translateY(calc(-1 * var(--sf-motion-card-lift)));
+    box-shadow: var(--sf-shadow-md);
+    border-color: var(--sf-red-light);
+  }
+  :root.sf-motion:not([data-nt-mode]) [data-card]:hover::before {
+    transform: scaleX(1);
+  }
+
+  /* Buttons rise a pixel, as in the QMS. */
+  :root.sf-motion:not([data-nt-mode]) .sf-btn {
+    transition:
+      background-color var(--sf-motion-button) ease,
+      border-color var(--sf-motion-button) ease,
+      transform var(--sf-motion-button) ease;
+  }
+  :root.sf-motion:not([data-nt-mode]) .sf-btn:hover {
+    transform: translateY(calc(-1 * var(--sf-motion-button-lift)));
   }
 }
 

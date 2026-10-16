@@ -2,7 +2,10 @@
 /* ============================================================
    Site nav: fixed bar, Services drop-down, phone drawer
    ------------------------------------------------------------
-   Fixed, so every page's first band clears it (pt-[72px] or more).
+   The QMS's bar: white, a hairline at the foot, the soft shadow, the
+   roundel and the wordmark painted the way the signboard paints it
+   (SAMRUDDHI in red, FIRE in navy). Fixed, so every page's first band
+   clears it (pt-[72px] or more).
 
    DESKTOP (1080px and up): Home, About, Services, Projects, Gallery,
    Contact, and the "Call Now" button. Services opens a drop-down on
@@ -16,7 +19,7 @@
 
    KEYS: `page` supplies the first segment of every key, so the same
    label has a key of its own on each page. The drawer repeats the bar's
-   labels and is marked data-no-edit: the bar holds the one editable copy.
+   labels and is marked data-no-edit: the bar holds the editable copy.
    ============================================================ */
 import { nav } from "../data/chrome";
 import { site } from "../data/site";
@@ -32,13 +35,18 @@ const isHere = (href: string) => {
   const path = href.split("#")[0];
   return here === path || (path !== "/" && here.startsWith(path + "/"));
 };
+const [nameHead, nameTail] = [site.name.split(" ").slice(0, -1).join(" "), site.name.split(" ").slice(-1)[0]];
+const phoneIcon =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" stroke-linejoin="round"/></svg>';
 ---
 
-<header data-site-header class="fixed top-0 inset-x-0 z-50 bg-ember text-on-dark border-b border-line-dark">
+<header data-site-header class="fixed top-0 inset-x-0 z-50 bg-surface border-b border-border shadow-sm">
   <div class="sf-container h-[72px] flex items-center justify-between gap-6">
-    <a href="/" class="flex items-center gap-3 shrink-0 min-w-0" aria-label={nav.logoAlt}>
+    <a href="/" class="flex items-center gap-2.5 shrink-0 min-w-0" aria-label={nav.logoAlt}>
       <img src="/images/logo/sf-logo-96.png" alt="" width="44" height="44" class="w-11 h-11 shrink-0" />
-      <span class="font-bold text-[1.05rem] leading-tight tracking-tight whitespace-nowrap" data-no-edit>{site.name}</span>
+      <span class="font-bold text-[1.05rem] tracking-[0.02em] uppercase whitespace-nowrap leading-none" data-no-edit>
+        <span class="text-red">{nameHead}</span> <span class="text-navy">{nameTail}</span>
+      </span>
     </a>
 
     <nav class="hidden min-[1080px]:flex items-center gap-7" aria-label="Primary">
@@ -53,8 +61,8 @@ const isHere = (href: string) => {
                   href={link.href}
                   aria-current={here === link.href ? "page" : undefined}
                   class:list={[
-                    "flex items-center gap-1.5 text-[0.95rem] font-medium py-2 border-b-2 hover:text-orange",
-                    active ? "text-orange border-orange" : "border-transparent",
+                    "flex items-center gap-1.5 text-[0.95rem] font-medium py-2 border-b-2 hover:text-red",
+                    active ? "text-red border-red" : "text-ink border-transparent",
                   ]}
                 >
                   <span data-edit={`${page}.nav.links.${i}.label`}>{link.label}</span>
@@ -66,10 +74,10 @@ const isHere = (href: string) => {
                 </a>
                 {kids && (
                   <div class="absolute left-1/2 -translate-x-1/2 top-full pt-[18px] hidden group-hover:block group-focus-within:block">
-                    <ul class="sf-nav-menu min-w-[260px] bg-ember-2 border border-line-dark rounded-[var(--sf-radius-card)] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+                    <ul class="sf-nav-menu min-w-[270px] bg-surface border border-border rounded-card p-2 shadow-md">
                       {kids.map((kid, j) => (
                         <li>
-                          <a href={kid.href} class="block rounded-[var(--sf-radius-button)] px-4 py-2.5 text-[0.92rem] whitespace-nowrap hover:bg-ember-3 hover:text-orange">
+                          <a href={kid.href} class="block rounded-button px-4 py-2.5 text-[0.93rem] text-ink whitespace-nowrap hover:bg-red-light hover:text-red">
                             <span data-edit={`${page}.nav.services.${j}`}>{kid.label}</span>
                           </a>
                         </li>
@@ -84,20 +92,20 @@ const isHere = (href: string) => {
       </ul>
 
       <a href={nav.cta.href} class="sf-btn sf-btn-primary">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" stroke-linejoin="round"/></svg>
+        <Fragment set:html={phoneIcon} />
         <span data-edit={`${page}.nav.cta`}>{nav.cta.label}</span>
       </a>
     </nav>
 
     <div class="flex items-center gap-2 min-[1080px]:hidden">
-      <a href={nav.cta.href} class="sf-btn sf-btn-primary !min-h-10 !px-4 !text-[0.88rem]" aria-label={`${nav.cta.label}: ${site.phone.display}`}>
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" stroke-linejoin="round"/></svg>
-        <span data-no-edit class="max-[379px]:hidden">{nav.cta.label}</span>
+      <a href={nav.cta.href} class="sf-btn sf-btn-primary !px-3.5 !text-[0.9rem]" aria-label={`${nav.cta.label}: ${site.phone.display}`}>
+        <Fragment set:html={phoneIcon} />
+        <span data-no-edit class="max-[399px]:hidden">{nav.cta.label}</span>
       </a>
       <button
         type="button"
         id="nav-drawer-toggle"
-        class="inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-[var(--sf-radius-button)] hover:bg-ember-3"
+        class="inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-button text-navy hover:bg-navy-light"
         aria-expanded="false"
         aria-controls="nav-drawer"
         aria-label="Open menu"
@@ -108,22 +116,22 @@ const isHere = (href: string) => {
     </div>
   </div>
 
-  <nav id="nav-drawer" class="hidden min-[1080px]:hidden border-t border-line-dark bg-ember max-h-[calc(100dvh-72px)] overflow-y-auto" aria-label="Primary, mobile">
-    <ul class="sf-container flex flex-col py-4">
+  <nav id="nav-drawer" class="hidden min-[1080px]:hidden border-t border-border bg-surface max-h-[calc(100dvh-72px)] overflow-y-auto" aria-label="Primary, mobile">
+    <ul class="sf-container flex flex-col py-3">
       {
         nav.links.map((link) => {
           const kids = "children" in link ? link.children : undefined;
           const active = isHere(link.href);
           return (
-            <li class="border-b border-line-dark last:border-b-0">
-              <a href={link.href} aria-current={here === link.href ? "page" : undefined} class:list={["block py-3.5 text-[1.05rem] font-medium", active ? "text-orange" : ""]}>
+            <li class="border-b border-border last:border-b-0">
+              <a href={link.href} aria-current={here === link.href ? "page" : undefined} class:list={["block py-3.5 text-[1.05rem] font-semibold", active ? "text-red" : "text-navy"]}>
                 <span data-no-edit>{link.label}</span>
               </a>
               {kids && (
-                <ul class="flex flex-col pb-3 pl-4 border-l-2 border-red ml-1 mb-3">
+                <ul class="flex flex-col pb-3 pl-4 ml-1 mb-3 border-l-2 border-red">
                   {kids.map((kid) => (
                     <li>
-                      <a href={kid.href} class="block py-2 text-[0.95rem] text-on-dark-2 hover:text-orange">
+                      <a href={kid.href} class="block py-2.5 text-[0.98rem] text-ink hover:text-red">
                         <span data-no-edit>{kid.label}</span>
                       </a>
                     </li>

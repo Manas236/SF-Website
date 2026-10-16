@@ -1,39 +1,51 @@
 /* ============================================================
    Global stylesheet
    ------------------------------------------------------------
-   Thin on purpose. Every design decision is a token in tokens.css; what
-   is left here are element defaults and the few shared components that
-   would otherwise be repeated on every page.
+   Thin on purpose. Every colour, radius and shadow is a token in
+   tokens.css; what is left here are element defaults and the few
+   shared components (container, pill, buttons, card, placeholder)
+   that would otherwise be repeated on every page. Their shapes follow
+   the QMS's own (docs/DESIGN-SYSTEM.md).
    ============================================================ */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./motion.css";
 
-/* Metric-matched fallback, so text set in the system font before
-   Poppins arrives takes the same space and nothing shifts when it does. */
+/* Metric-matched fallback, so text set in the system font before DM Sans
+   arrives takes the same space and nothing shifts when it does. */
 @font-face {
-  font-family: "Poppins Fallback";
+  font-family: "DM Sans Fallback";
   src: local("Arial");
-  ascent-override: 92.33%;
-  descent-override: 30.78%;
-  line-gap-override: 8.79%;
-  size-adjust: 113.73%;
+  ascent-override: 94.9%;
+  descent-override: 29.66%;
+  line-gap-override: 0%;
+  size-adjust: 104.53%;
 }
 
 @layer base {
   html {
-    background-color: var(--sf-ember);
+    background-color: var(--sf-navy-dark);
     scroll-padding-top: 88px;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: var(--sf-paper);
+    background-color: var(--sf-canvas);
     color: var(--sf-ink);
     font-family: var(--sf-font);
+    font-size: 16px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--sf-navy);
+    line-height: 1.2;
+    text-wrap: balance;
   }
 
   img,
@@ -49,7 +61,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--sf-orange);
+    outline: 2px solid var(--sf-red);
     outline-offset: 3px;
   }
 
@@ -75,44 +87,50 @@
     }
   }
 
-  /* Small uppercase label above a heading. */
-  .sf-kicker {
+  /* The QMS's nav pill, used as the label above a heading. */
+  .sf-pill {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.75rem;
-    line-height: 1.2;
+    background: var(--sf-navy-light);
+    color: var(--sf-navy);
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.14em;
+    line-height: 1.4;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--sf-radius-pill);
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--sf-red);
   }
-  .sf-kicker::before {
-    content: "";
-    width: 24px;
-    height: 2px;
-    background: currentColor;
-    border-radius: 2px;
+  .sf-pill-red {
+    background: var(--sf-red-light);
+    color: var(--sf-red-dark);
   }
-  .sf-on-dark .sf-kicker {
-    color: var(--sf-orange);
+  .sf-on-dark .sf-pill {
+    background: rgba(237, 234, 249, 0.12);
+    color: var(--sf-navy-light);
   }
 
-  /* Buttons. One primary (red), one quiet outline, one WhatsApp. */
+  /* Buttons, the QMS's: red primary, red-outlined ghost. */
   .sf-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    min-height: 48px;
-    padding: 12px 22px;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.65rem 1.4rem;
     border-radius: var(--sf-radius-button);
+    font-family: var(--sf-font);
     font-weight: 600;
     font-size: 0.95rem;
     line-height: 1.2;
     white-space: nowrap;
     border: 1.5px solid transparent;
     cursor: pointer;
+  }
+  .sf-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
   .sf-btn-primary {
     background: var(--sf-red);
@@ -121,38 +139,81 @@
   .sf-btn-primary:hover {
     background: var(--sf-red-dark);
   }
-  .sf-btn-outline {
-    border-color: currentColor;
-    color: inherit;
-  }
-  .sf-btn-outline:hover {
+  .sf-btn-ghost {
+    background: transparent;
     color: var(--sf-red);
+    border-color: var(--sf-red);
   }
-  .sf-on-dark .sf-btn-outline:hover {
-    color: var(--sf-orange);
+  .sf-btn-ghost:hover {
+    background: var(--sf-red-light);
   }
-  .sf-btn-whatsapp {
-    background: var(--sf-whatsapp);
+  .sf-btn-navy {
+    background: var(--sf-navy);
     color: var(--sf-white);
   }
-  .sf-btn-whatsapp:hover {
-    filter: brightness(1.08);
+  .sf-btn-navy:hover {
+    background: var(--sf-navy-dark);
+  }
+  .sf-btn-light {
+    background: var(--sf-white);
+    color: var(--sf-navy);
+  }
+  .sf-btn-light:hover {
+    background: var(--sf-navy-light);
+  }
+  /* On a dark band the ghost turns light. */
+  .sf-on-dark .sf-btn-ghost {
+    color: var(--sf-white);
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+  .sf-on-dark .sf-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--sf-white);
+  }
+
+  /* The QMS card: white, hairline border, 14px corners, a soft shadow. */
+  .sf-card {
+    background: var(--sf-surface);
+    border: 1px solid var(--sf-border);
+    border-radius: var(--sf-radius-card);
+    box-shadow: var(--sf-shadow-sm);
+  }
+
+  /* The QMS card icon well: 48px, tinted red, red stroke icon. */
+  .sf-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sf-red-light);
+    border-radius: var(--sf-radius-icon);
+    color: var(--sf-red);
+  }
+  .sf-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   /* A placeholder: content the client has to supply or confirm. One
      format everywhere: the text reads "[Client to supply: ...]" and the
-     element carries data-placeholder (src/data/placeholder.ts). Once the
-     client edits it in place, the editor marks it data-nt-edited and the
-     marker disappears. */
+     element carries data-placeholder (src/data/placeholder.ts). It wears
+     the QMS's own "add ..." chip colours. Once the client edits it in
+     place, the editor marks it data-nt-edited and the marker goes. */
   [data-placeholder]:not([data-nt-edited]) {
-    background: repeating-linear-gradient(
-      -45deg,
-      color-mix(in srgb, var(--sf-orange) 16%, transparent) 0 8px,
-      color-mix(in srgb, var(--sf-orange) 8%, transparent) 8px 16px
-    );
-    outline: 1.5px dashed var(--sf-orange);
+    background: var(--sf-todo-bg);
+    color: var(--sf-todo-ink);
+    outline: 1px dashed var(--sf-todo-border);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 5px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
 }
 
