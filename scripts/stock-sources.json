@@ -1,0 +1,204 @@
+[
+  {
+    "file": "red-fire-mains-concrete-ceiling",
+    "group": "fire-fighting",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/exposed-industrial-ceiling-with-concrete-beams-red-pipes-and-wiring-YkPY2Awkra8",
+    "download": "https://images.unsplash.com/photo-1785682117437-91f081385f6b?w=2400&q=85&fm=jpg",
+    "photographer": "Valentin Lacoste",
+    "position": "centre"
+  },
+  {
+    "file": "red-pipework-cable-trays",
+    "group": "fire-fighting",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/concrete-ceiling-with-red-pipes-and-cable-trays-KsLbHArxEuU",
+    "download": "https://images.unsplash.com/photo-1785682117611-586d39bfd5f2?w=2400&q=85&fm=jpg",
+    "photographer": "Valentin Lacoste",
+    "position": "centre"
+  },
+  {
+    "file": "sprinkler-grid-warehouse-roof",
+    "group": "fire-fighting",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/a-fire-hydrant-in-the-middle-of-a-building-under-construction-ETgShag8Pxs",
+    "download": "https://images.unsplash.com/photo-1687694820364-9d250c054cb2?w=2400&q=85&fm=jpg",
+    "photographer": "Radek Sobczyk",
+    "position": "centre"
+  },
+  {
+    "file": "sprinkler-risers-factory-wall",
+    "group": "fire-fighting",
+    "source": "pexels",
+    "page": "https://www.pexels.com/photo/industrial-fire-sprinkler-system-pipes-37352142/",
+    "download": "https://images.pexels.com/photos/37352142/pexels-photo-37352142.jpeg?auto=compress&cs=tinysrgb&w=2400",
+    "photographer": "Loc Ho",
+    "position": "centre"
+  },
+  {
+    "file": "hydrant-valve-manifold",
+    "group": "fire-fighting",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/a-fire-hydrant-mounted-to-the-side-of-a-white-wall-QewvHHPlQmk",
+    "download": "https://images.unsplash.com/photo-1705461680933-fad8e684e97a?w=2400&q=85&fm=jpg",
+    "photographer": "Nikolay Loubet",
+    "position": "centre"
+  },
+  {
+    "file": "manual-call-point",
+    "group": "alarm",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/v2WdGv6n_mc",
+    "download": "https://images.unsplash.com/photo-1743698205310-cd814a95afab?w=2400&q=85&fm=jpg",
+    "photographer": "Jakub Żerdzicki",
+    "position": "centre"
+  },
+  {
+    "file": "alarm-horn-strobe",
+    "group": "alarm",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/OLSy8_770lw",
+    "download": "https://images.unsplash.com/photo-1585367437379-e0b71bb18156?w=2400&q=85&fm=jpg",
+    "photographer": "Jalen Hueser",
+    "position": "centre"
+  },
+  {
+    "file": "ceiling-detector",
+    "group": "alarm",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/white-and-red-round-device-IxEl6fy4Cvc",
+    "download": "https://images.unsplash.com/photo-1580802379330-f1bbb7dd532e?w=2400&q=85&fm=jpg",
+    "photographer": "Giulia Filidei",
+    "extract": {
+      "left": 960,
+      "top": 1984,
+      "width": 1440,
+      "height": 960
+    },
+    "blur": [
+      {
+        "left": 2030,
+        "top": 2495,
+        "width": 100,
+        "height": 100,
+        "sigma": 8
+      }
+    ]
+  },
+  {
+    "file": "extinguisher-concrete-wall",
+    "group": "materials",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/GCmVg5lztwI",
+    "download": "https://images.unsplash.com/photo-1712640379137-6d2532f887a7?w=2400&q=85&fm=jpg",
+    "photographer": "Jakub Żerdzicki",
+    "position": "centre"
+  },
+  {
+    "file": "extinguishers-along-corridor",
+    "group": "materials",
+    "source": "pexels",
+    "page": "https://www.pexels.com/photo/photograph-of-a-red-fire-extinguisher-13756513/",
+    "download": "https://images.pexels.com/photos/13756513/pexels-photo-13756513.jpeg?auto=compress&cs=tinysrgb&w=2400",
+    "photographer": "Tibor Szabo",
+    "position": "centre"
+  },
+  {
+    "file": "hose-reel-cabinet",
+    "group": "materials",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/red-metal-fire-hose-reel-container-jv1BTz-X4wg",
+    "download": "https://images.unsplash.com/photo-1560517734-124ebe0ad826?w=2400&q=85&fm=jpg",
+    "photographer": "Syed Hussaini",
+    "position": "centre"
+  },
+  {
+    "file": "hose-box-landing-valve",
+    "group": "materials",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/red-fire-extinguisher-mounted-on-white-wall-N1VNrP4TclQ",
+    "download": "https://images.unsplash.com/photo-1585585825759-979ec75438cc?w=2400&q=85&fm=jpg",
+    "photographer": "Devana Jalalludin",
+    "position": "centre",
+    "blur": [
+      {
+        "left": 1230,
+        "top": 860,
+        "width": 400,
+        "height": 240
+      }
+    ]
+  },
+  {
+    "file": "pipework-inspection",
+    "group": "fire-amc",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/a-worker-inspects-industrial-pipes-and-valves-D8QERQMlfRs",
+    "download": "https://images.unsplash.com/photo-1748442001865-5583ec02ae22?w=2400&q=85&fm=jpg",
+    "photographer": "Hakan Çınar",
+    "position": "north"
+  },
+  {
+    "file": "valve-station-detail",
+    "group": "fire-amc",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/a-close-up-of-pipes-and-valves-in-a-building-o6asPZdUjUs",
+    "download": "https://images.unsplash.com/photo-1690973692388-239878450c7b?w=2400&q=85&fm=jpg",
+    "photographer": "Rose Galloway Green",
+    "position": "centre"
+  },
+  {
+    "file": "red-fire-main-ceiling",
+    "group": "fire-amc",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/electrical-conduits-and-pipes-are-installed-on-a-ceiling-eENezYdWSIg",
+    "download": "https://images.unsplash.com/photo-1743182937899-6de2c00e3d10?w=2400&q=85&fm=jpg",
+    "photographer": "Nopparuj Lamaikul",
+    "position": "centre"
+  },
+  {
+    "file": "extinguisher-gauge-valve",
+    "group": "fire-extenguisher-refilling",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/a-red-fire-extinguisher-close-up-Ig5Y6ft8KIs",
+    "download": "https://images.unsplash.com/photo-1749197294336-8863979add71?w=2400&q=85&fm=jpg",
+    "photographer": "Gabriel Vasiliu",
+    "position": "centre"
+  },
+  {
+    "file": "extinguishers-on-pallet",
+    "group": "fire-extenguisher-refilling",
+    "source": "pexels",
+    "page": "https://www.pexels.com/photo/fire-extinguishers-in-industrial-setting-copenhagen-29106030/",
+    "download": "https://images.pexels.com/photos/29106030/pexels-photo-29106030.jpeg?auto=compress&cs=tinysrgb&w=2400",
+    "photographer": "lucas hegaard",
+    "focusY": 0.6
+  },
+  {
+    "file": "diamond-core-drill",
+    "group": "core-cutting",
+    "source": "pexels",
+    "page": "https://www.pexels.com/photo/a-person-using-a-demolition-hammer-16280548/",
+    "download": "https://images.pexels.com/photos/16280548/pexels-photo-16280548.jpeg?auto=compress&cs=tinysrgb&w=2400",
+    "photographer": "Hubert Kołucki",
+    "position": "south",
+    "blur": [
+      {
+        "left": 1360,
+        "top": 2630,
+        "width": 200,
+        "height": 270,
+        "sigma": 14
+      }
+    ]
+  },
+  {
+    "file": "masonry-drill-bits",
+    "group": "core-cutting",
+    "source": "unsplash",
+    "page": "https://unsplash.com/photos/three-metal-drill-bits-on-a-concrete-surface-UVNwc8drXlk",
+    "download": "https://images.unsplash.com/photo-1760376208640-2ece4c4a0adc?w=2400&q=85&fm=jpg",
+    "photographer": "Barry A",
+    "position": "centre"
+  }
+]

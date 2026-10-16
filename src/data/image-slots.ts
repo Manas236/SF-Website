@@ -21,7 +21,23 @@ export interface ImageSlot {
   readonly file: string;
 }
 
-export const imageSlots: readonly ImageSlot[] = [];
+export const imageSlots: readonly ImageSlot[] = [
+  { key: "home.hero", label: "Home: top banner", page: "/", file: "red-fire-mains-concrete-ceiling.jpg" },
+  { key: "home.intro", label: "Home: beside the introduction", page: "/", file: "hydrant-valve-manifold.jpg" },
+  { key: "about.story", label: "About: beside our story", page: "/about", file: "pipework-inspection.jpg" },
+  { key: "services.fire-fighting", label: "Services: Fire Fighting & Detection", page: "/services", file: "sprinkler-grid-warehouse-roof.jpg" },
+  { key: "services.alarm", label: "Services: Alarm System", page: "/services", file: "manual-call-point.jpg" },
+  { key: "services.materials", label: "Services: Material Supplier", page: "/services", file: "extinguishers-along-corridor.jpg" },
+  { key: "services.fire-amc", label: "Services: Fire AMC", page: "/services", file: "valve-station-detail.jpg" },
+  {
+    key: "services.fire-extenguisher-refilling",
+    label: "Services: Fire Extinguisher Refilling",
+    page: "/services",
+    file: "extinguisher-gauge-valve.jpg",
+  },
+  { key: "services.core-cutting", label: "Services: Core Cutting & Drilling", page: "/services", file: "diamond-core-drill.jpg" },
+  { key: "locations.photo", label: "Service areas: beside the list", page: "/locations", file: "sprinkler-risers-factory-wall.jpg" },
+];
 
 const slotByKey = new Map(imageSlots.map((s) => [s.key, s]));
 
