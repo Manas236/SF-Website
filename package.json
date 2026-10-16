@@ -1,0 +1,46 @@
+{
+  "name": "sf-website",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "start": "node dist/server/entry.mjs",
+    "build:release": "npm run check:site-url && astro build",
+    "check:site-url": "node scripts/check-site-url.mjs",
+    "check:placeholders": "node scripts/check-placeholders.mjs",
+    "check:db-flows": "node scripts/check-db-flows.mjs",
+    "check:editor": "node scripts/probe-editor.mjs",
+    "check:cls": "node scripts/check-layout-shift.mjs",
+    "check:sweep": "node scripts/sweep-source.mjs",
+    "check:site": "node scripts/verify-site.mjs",
+    "images:build": "node scripts/build-stock-images.mjs",
+    "hashes:build": "node scripts/build-gallery-hashes.mjs",
+    "share-card:build": "node scripts/build-share-card.mjs"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.5",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/poppins": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.1",
+    "dotenv": "^17.4.2",
+    "mysql2": "^3.24.3",
+    "nodemailer": "^7.0.13",
+    "sharp": "^0.35.4",
+    "tailwindcss": "^4.3.3"
+  },
+  "allowScripts": {
+    "esbuild": true
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2",
+    "playwright": "^1.63.0"
+  }
+}

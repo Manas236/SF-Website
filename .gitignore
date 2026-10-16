@@ -1,0 +1,38 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables: secrets live here, never in git
+.env
+.env.production
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+
+# studio uploads in local development (the MEDIA_DIR default)
+/media/
+
+# raw downloads before resizing (scripts/build-stock-images.mjs)
+/raw-images/
+
+# check output (screenshots, reports)
+/check-output/
+
+# server backups belong in /srv/sf-backups/, never in the site folder
+# (docs/DEPLOY.md); these keep a stray one out of git
+.env.bak*
+dist.bak-*/
+db-backup-*.sql
+sf-schema-*.sql
