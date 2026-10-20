@@ -6,9 +6,9 @@
    301 (astro.config.mjs). Edit keys are contact.* (the page is
    /contact-us; src/lib/editable.ts lists it).
 
-   The map is a live Google Maps embed with no API key: a search for the
-   address. Lazy-loaded, in a fixed-ratio box, so it never shifts the
-   page.
+   The map is a live Google Maps embed with no API key: the business's
+   own Google listing (mapEmbedUrl in src/data/site.ts). Lazy-loaded, in
+   a fixed-ratio box, so it never shifts the page.
    ============================================================ */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Nav from "../components/Nav.astro";

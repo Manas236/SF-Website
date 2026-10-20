@@ -28,6 +28,10 @@ export const site = {
     country: "IN",
   },
 
+  /** Where the office pin goes: the client's own Google Maps listing
+      ("Samruddhi Fire, Shri Sai CHS, 5/A-04, near Ganesh Mandir, Sector 10"). */
+  geo: { lat: 19.0992169, lng: 73.0068225 },
+
   phone: {
     display: "+91 88984 20303",
     /** For tel: links and schema.org: E.164. */
@@ -77,12 +81,17 @@ export const services: readonly Service[] = [
 /** The one-line address, for maps and schema. */
 export const addressOneLine = `${site.address.streetAddress}, ${site.address.locality} ${site.address.postalCode}`;
 
-/** Google Maps embed with no API key: a search for the ADDRESS only.
-    Searching the business name makes Google draw its place card, which
-    shows a star rating and review count, and the site carries no
-    ratings or reviews (CLAUDE.md). The address alone drops a plain pin. */
+/** Google Maps embed with no API key: the business's own Google listing,
+    searched by name at its coordinates. Google draws its pin with
+    "Samruddhi Fire" beside it and, on the wider maps, its place card
+    (address, rating, Open in Maps). Searching the address instead
+    matched three buildings and drew three equal pins.
+    The rating in that card is Google's, inside Google's frame, and was
+    chosen on 17 Oct 2026 (CLAUDE.md). The site's own copy still carries
+    no ratings or reviews. */
 export const mapEmbedUrl =
-  "https://maps.google.com/maps?q=" + encodeURIComponent(addressOneLine) + "&z=16&output=embed";
+  "https://maps.google.com/maps?q=" + encodeURIComponent(site.name) +
+  "&ll=" + site.geo.lat + "," + site.geo.lng + "&z=17&output=embed";
 
 export const directionsUrl =
   "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(addressOneLine);

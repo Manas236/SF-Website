@@ -22,7 +22,10 @@ from.
 - Hard bans in visitor copy: no figures of any kind (years, clients,
   projects, staff, reviews, ratings), no testimonials, no claims of
   accreditation, certification, licences, ISO or 24-hour service, no named
-  clients or projects.
+  clients or projects. One exception, chosen on 17 Oct 2026: the Google
+  Maps embed shows Google's own place card for the business, its rating
+  and review count included. That is Google's content in Google's frame;
+  nothing of ours repeats it.
 - Anything the client must still supply is a placeholder in ONE format,
   `ph("...")` from `src/data/placeholder.ts`, which renders
   `[Client to supply: ...]`. Never invent the missing fact instead.
